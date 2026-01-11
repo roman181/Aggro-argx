@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>ARGO‑HYTOS Novo Slot</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #222 0, #000 60%);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .slot-container {
+      background: linear-gradient(135deg, #222, #111);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+      width: 780px;
+      max-width: 95vw;
+      border: 2px solid #444;
+    }
+
+    .slot-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .slot-header h1 {
+      font-size: 26px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #f4d35e;
+      text-shadow: 0 0 8px #f4d35e;
+    }
+
+    .slot-header span {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .display-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border: 1px solid #333;
+      font-size: 14px;
+    }
+
+    .display-panel .value {
+      color: #5cf25c;
+      font-weight: bold;
+      min-width: 70px;
+      text-align: right;
+    }
+
+    .reels-wrapper {
+      background: radial-gradient(circle at top, #333 0, #111 60%);
+      border-radius: 12px;
+      padding: 12px;
+      border: 2px solid #555;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reels {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(3, 90px);
+      gap: 6px;
+    }
+
+    .symbol-cell {
+      background: #000;
+      border-radius: 6px;
+      border: 1px solid #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      overflow: hidden;
+    }
+
+    .symbol-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .symbol-win {
+      transform: scale(1.06);
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+      border-color: #ffd740;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    button {
+      background: linear-gradient(180deg, #2e7d32, #1b5e20);
+      color: #fff;
+      border: 1px solid #66bb6a;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      min-width: 80px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(180deg, #3fa543, #2e7d32);
+      box-shadow: 0 0 10px rgba(102, 187, 106, 0.7);
+    }
+
+    button:active {
+      transform: scale(0.96);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      background: #444;
+      border-color: #666;
+      color: #aaa;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .bet-display {
+      background: #111;
+      border-radius: 18px;
+      padding: 4px 10px;
+      border: 1px solid #333;
+      font-size: 13px;
+    }
+
+    .messages {
+      margin-top: 8px;
+      height: 22px;
+      font-size: 13px;
+      color: #f4d35e;
+      text-shadow: 0 0 6px rgba(0,0,0,0.8);
+    }
+
+    .paytable {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #ccc;
+      line-height: 1.4;
+      border-top: 1px solid #333;
+      padding-top: 6px;
+    }
+
+    .paytable-title {
+      color: #f4d35e;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    @media (max-width: 600px) {
+      .slot-container {
+        padding: 12px;
+      }
+      .reels {
+        grid-template-rows: repeat(3, 70px);
+      }
+      button {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      .display-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slot-container">
+    <div class="slot-header">
+      <h1>ARGO‑HYTOS NOVO SLOT</h1>
+      <span>5 Walzen • 3 Reihen • Gewinnlinie: mittlere Reihe</span>
+    </div>
+
+    <div class="display-panel">
+      <div>
+        Guthaben:
+        <span class="value" id="balance-display">1000</span>
+      </div>
+      <div>
+        Einsatz:
+        <span class="value" id="bet-display">10</span>
+      </div>
+      <div>
+        Gewinn:
+        <span class="value" id="win-display">0</span>
+      </div>
+    </div>
+
+    <div class="reels-wrapper">
+      <div class="reels" id="reels"></div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <button id="bet-minus">-</button>
+        <div class="bet-display">Linien-Einsatz</div>
+        <button id="bet-plus">+</button>
+      </div>
+
+      <div class="control-group">
+        <button id="spin-button">Start</button>
+        <button id="auto-button">Auto</button>
+      </div>
+    </div>
+
+    <div class="messages" id="message"></div>
+
+    <div class="paytable">
+      <div class="paytable-title">Auszahlungs-Tabelle (5 gleiche in der mittleren Linie):</div>
+      <div>YOUTUBE_LOGO x5 = 300 × Einsatz • ARGO_VOITH_LOGO x5 = 220 × Einsatz</div>
+      <div>FILTERDECKEL x5 = 150 × Einsatz • SO0426 x5 = 100 × Einsatz</div>
+      <div>AS080 x5 = 80 × Einsatz • MFE x5 = 60 × Einsatz</div>
+    </div>
+  </div>
+
+  <script>
+    const SYMBOLS = [
+      {
+        id: "YOUTUBE_LOGO",
+        className: "symbol-img",
+        weight: 3,
+        url: "https://yt3.googleusercontent.com/ytc/AIdro_k2ME-LZeXI9Ab6PpYdMRpCLZx2JFoBHHWqRiSiJWeivD0=s160-c-k-c0x00ffffff-no-rj"
+      },
+      {
+        id: "ARGO_VOITH_LOGO",
+        className: "symbol-img",
+        weight: 3,
+        url: "https://www.argo-hytos.com/typo3temp/_processed_/csm_Argo-Hytos_Voith_Logo_RGB_01_87252b57cb.png"
+      },
+      {
+        id: "FILTERDECKEL",
+        className: "symbol-img",
+        weight: 4,
+        url: "https://hydraulik-store.de/wp-content/uploads/2022/06/Belueftungsfilterdeckel.jpg"
+      },
+      {
+        id: "SO0426",
+        className: "symbol-img",
+        weight: 4,
+        url: "https://www.argo-hytos.com/fileadmin/user_upload/categories/SO0426_150dpi.jpg"
+      },
+      {
+        id: "AS080",
+        className: "symbol-img",
+        weight: 5,
+        url: "https://www.argo-hytos.com/fileadmin/user_upload/categories/AS080_150dpi.jpg"
+      },
+      {
+        id: "MFE",
+        className: "symbol-img",
+        weight: 6,
+        url: "https://www.argo-hytos.com/fileadmin/user_upload/categories/MFE_150dpi_01.jpg"
+      }
+    ];
+
+    const PAYTABLE = {
+      "YOUTUBE_LOGO": 300,
+      "ARGO_VOITH_LOGO": 220,
+      "FILTERDECKEL": 150,
+      "SO0426": 100,
+      "AS080": 80,
+      "MFE": 60
+    };
+
+    const reelsElement = document.getElementById('reels');
+    const balanceDisplay = document.getElementById('balance-display');
+    const betDisplay = document.getElementById('bet-display');
+    const winDisplay = document.getElementById('win-display');
+    const messageDisplay = document.getElementById('message');
+
+    const spinButton = document.getElementById('spin-button');
+    const autoButton = document.getElementById('auto-button');
+    const betMinusButton = document.getElementById('bet-minus');
+    const betPlusButton = document.getElementById('bet-plus');
+
+    const ROWS = 3;
+    const COLS = 5;
+
+    let balance = 1000;
+    let bet = 10;
+    let spinning = false;
+    let autoPlay = false;
+
+    function initGrid() {
+      reelsElement.innerHTML = '';
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const cell = document.createElement('div');
+          cell.classList.add('symbol-cell');
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          reelsElement.appendChild(cell);
+        }
+      }
+    }
+
+    function updateUI() {
+      balanceDisplay.textContent = balance.toString();
+      betDisplay.textContent = bet.toString();
+    }
+
+    function chooseRandomSymbol() {
+      const totalWeight = SYMBOLS.reduce((sum, s) => sum + s.weight, 0);
+      let r = Math.random() * totalWeight;
+      for (const s of SYMBOLS) {
+        if (r < s.weight) return s;
+        r -= s.weight;
+      }
+      return SYMBOLS[0];
+    }
+
+    function fillGridRandom() {
+      const cells = reelsElement.querySelectorAll('.symbol-cell');
+      cells.forEach(cell => {
+        const symbol = chooseRandomSymbol();
+        cell.className = 'symbol-cell ' + symbol.className;
+        cell.innerHTML = `<img src="${symbol.url}" alt="${symbol.id}">`;
+      });
+    }
+
+    function getSymbolAt(row, col) {
+      return reelsElement.querySelector(`.symbol-cell[data-row="${row}"][data-col="${col}"]`);
+    }
+
+    function getSymbolId(cell) {
+      const img = cell.querySelector("img");
+      return img ? img.alt : null;
+    }
+
+    function clearWinHighlights() {
+      reelsElement.querySelectorAll('.symbol-cell').forEach(cell => {
+        cell.classList.remove('symbol-win');
+      });
+    }
+
+    function evaluateWin() {
+      const midRow = 1;
+      const firstCell = getSymbolAt(midRow, 0);
+      const firstId = getSymbolId(firstCell);
+      if (!firstId) {
+        winDisplay.textContent = '0';
+        messageDisplay.textContent = 'Kein Gewinn.';
+        return 0;
+      }
+
+      let allSame = true;
+      for (let col = 1; col < COLS; col++) {
+        const cell = getSymbolAt(midRow, col);
+        const id = getSymbolId(cell);
+        if (id !== firstId) {
+          allSame = false;
+          break;
+        }
+      }
+
+      if (!allSame) {
+        winDisplay.textContent = '0';
+        messageDisplay.textContent = 'Kein Gewinn.';
+        return 0;
+      }
+
+      const factor = PAYTABLE[firstId] || 0;
+      if (factor <= 0) {
+        winDisplay.textContent = '0';
+        messageDisplay.textContent = 'Kein Gewinn.';
+        return 0;
+      }
+
+      const winAmount = bet * factor;
+      winDisplay.textContent = winAmount.toString();
+
+      for (let col = 0; col < COLS; col++) {
+        const cell = getSymbolAt(midRow, col);
+        cell.classList.add('symbol-win');
+      }
+
+      messageDisplay.textContent = `Linien-Gewinn: ${firstId} x5 – ${winAmount} Credits!`;
+      return winAmount;
+    }
+
+    function animateSpin() {
+      const cells = Array.from(reelsElement.querySelectorAll('.symbol-cell'));
+      const start = performance.now();
+      const duration = 900;
+
+      function frame(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+
+        cells.forEach(cell => {
+          if (Math.random() < 0.5) {
+            const s = chooseRandomSymbol();
+            cell.className = 'symbol-cell ' + s.className;
+            cell.innerHTML = `<img src="${s.url}" alt="${s.id}">`;
+          }
+        });
+
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          fillGridRandom();
+          const win = evaluateWin();
+          balance += win;
+          updateUI();
+          spinning = false;
+          spinButton.disabled = false;
+          betMinusButton.disabled = false;
+          betPlusButton.disabled = false;
+          if (autoPlay && balance >= bet) {
+            setTimeout(startSpin, 250);
+          } else if (autoPlay && balance < bet) {
+            autoPlay = false;
+            autoButton.textContent = 'Auto';
+            messageDisplay.textContent = 'Auto-Start beendet: Guthaben zu niedrig.';
+          }
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    function startSpin() {
+      if (spinning) return;
+      if (bet > balance) {
+        messageDisplay.textContent = 'Nicht genug Guthaben für diesen Einsatz.';
+        return;
+      }
+
+      spinning = true;
+      clearWinHighlights();
+      messageDisplay.textContent = 'Walzen drehen...';
+      winDisplay.textContent = '0';
+
+      balance -= bet;
+      updateUI();
+
+      spinButton.disabled = true;
+      betMinusButton.disabled = true;
+      betPlusButton.disabled = true;
+
+      animateSpin();
+    }
+
+    function toggleAutoPlay() {
+      autoPlay = !autoPlay;
+      autoButton.textContent = autoPlay ? 'Auto: AN' : 'Auto';
+      if (autoPlay && !spinning) {
+        startSpin();
+      }
+    }
+
+    function adjustBet(delta) {
+      const newBet = bet + delta;
+      if (newBet < 1) return;
+      if (newBet > 200) return;
+      bet = newBet;
+      updateUI();
+    }
+
+    spinButton.addEventListener('click', startSpin);
+    autoButton.addEventListener('click', toggleAutoPlay);
+    betMinusButton.addEventListener('click', () => adjustBet(-1));
+    betPlusButton.addEventListener('click', () => adjustBet(1));
+
+    initGrid();
+    fillGridRandom();
+    updateUI();
+    messageDisplay.textContent = 'Drücke START, um zu spielen.';
+  </script>
+</body>
+</html>

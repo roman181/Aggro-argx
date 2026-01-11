@@ -1,0 +1,213 @@
+l<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARGO Casino – Slot Game</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0b0b0b;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #111;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: #f4d35e;
+      text-shadow: 0 0 8px #f4d35e;
+    }
+
+    nav a {
+      color: #fff;
+      margin-left: 20px;
+      text-decoration: none;
+      font-size: 15px;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover {
+      color: #f4d35e;
+    }
+
+    .hero {
+      background: url('https://images.unsplash.com/photo-1542144582-1ba00456b5d5?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+      padding: 140px 40px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h2 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #000;
+    }
+
+    .hero p {
+      font-size: 20px;
+      max-width: 700px;
+      margin: 0 auto 30px;
+      text-shadow: 0 0 10px #000;
+    }
+
+    .hero button {
+      background: #f4d35e;
+      border: none;
+      padding: 14px 30px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .hero button:hover {
+      background: #ffe28a;
+    }
+
+    section {
+      padding: 60px 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .section-title {
+      font-size: 32px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #f4d35e;
+      text-shadow: 0 0 8px #f4d35e;
+    }
+
+    .game-card {
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255,215,0,0.2);
+      border: 1px solid #333;
+    }
+
+    iframe {
+      width: 100%;
+      height: 700px;
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    footer {
+      background: #111;
+      color: #ccc;
+      padding: 20px 40px;
+      text-align: center;
+      margin-top: 40px;
+      border-top: 2px solid #333;
+    }
+
+    footer a {
+      color: #f4d35e;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .hero h2 {
+        font-size: 32px;
+      }
+      iframe {
+        height: 520px;
+      }
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+      nav a {
+        margin-left: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>ARGO CASINO</h1>
+    <nav>
+      <a href="#games">Spiele</a>
+      <a href="#about">Über uns</a>
+      <a href="#contact">Kontakt</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h2>Willkommen im ARGO Casino</h2>
+      <p>Erlebe hochwertige Industrie‑Slotgames mit echten ARGO‑HYTOS Symbolen – direkt im Browser.</p>
+      <button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">
+        Jetzt spielen
+      </button>
+    </div>
+  </div>
+
+  <section id="games">
+    <h2 class="section-title">Top Spiel: ARGO‑HYTOS Novo Slot</h2>
+
+    <div class="game-card">
+      <iframe src="slot.html" title="ARGO-HYTOS Slot Game"></iframe>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2 class="section-title">Über ARGO Casino</h2>
+    <p style="text-align:center; max-width:800px; margin:auto;">
+      Dieses Projekt zeigt ein fiktives Online‑Casino mit einem speziell angepassten Novo‑Line‑Style
+      Slot‑Automaten auf Basis von ARGO‑HYTOS Motiven.  
+      Die Spiele laufen komplett clientseitig in HTML, CSS und JavaScript – ideal als Demo, Portfolio oder Prototyp.
+    </p>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title">Kontakt</h2>
+    <p style="text-align:center;">
+      Für Feedback, Ideen oder Kooperationen: <br>
+      <a href="mailto:info@argo-casino.example">info@argo-casino.example</a>
+    </p>
+  </section>
+
+  <footer>
+    © 2026 ARGO Casino • <a href="#">Impressum</a>
+  </footer>
+
+</body>
+</html>
