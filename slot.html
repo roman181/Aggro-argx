@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f3460">
+  <title>ARGO‑HYTOS Novo Slot Mobile</title>
+  <link rel="manifest" href="manifest.json">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(ellipse at top, #1a1a2e, #16213e, #0f3460);
+      color: #fff;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      overscroll-behavior: none;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Hauptcontainer */
+    .mobile-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: -webkit-fill-available;
+      max-width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Header */
+    .mobile-header {
+      padding: 12px 15px;
+      background: rgba(34, 40, 49, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #f4d35e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 900;
+      background: linear-gradient(45deg, #f4d35e, #ffd700);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    /* Touch-optimierte Buttons */
+    .touch-btn {
+      min-width: 44px;
+      min-height: 44px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(244, 211, 94, 0.3);
+      border-radius: 12px;
+      color: #f4d35e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.2s;
+      touch-action: manipulation;
+      padding: 8px;
+    }
+
+    .touch-btn:active {
+      transform: scale(0.95);
+      background: rgba(244, 211, 94, 0.2);
+    }
+
+    .touch-btn-lg {
+      min-width: 60px;
+      min-height: 60px;
+      font-size: 24px;
+      border-radius: 16px;
+    }
+
+    /* Hauptspielbereich */
+    .game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Balance & Info Cards */
+    .info-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .info-card {
+      background: linear-gradient(145deg, rgba(34, 40, 49, 0.9), rgba(57, 62, 70, 0.9));
+      border-radius: 12px;
+      padding: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      touch-action: manipulation;
+    }
+
+    .info-card:active {
+      transform: scale(0.98);
+      border-color: #f4d35e;
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .card-value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .balance-value {
+      color: #4CAF50;
+      text-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .win-value {
+      color: #ffd700;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Reels Container */
+    .mobile-reels-container {
+      background: radial-gradient(circle at center, #2d4059, #222831);
+      border-radius: 16px;
+      border: 3px solid #444;
+      padding: 10px;
+      margin: 10px 0;
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .mobile-reels {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(3, 18vw);
+      gap: 6px;
+      height: 100%;
+    }
+
+    @media (max-height: 700px) {
+      .mobile-reels {
+        grid-template-rows: repeat(3, 16vw);
+      }
+    }
+
+    .mobile-symbol {
+      background: linear-gradient(145deg, #1a1a2e, #16213e);
+      border-radius: 8px;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-symbol.win {
+      animation: win-pulse 0.5s ease-in-out 3;
+      border-color: #ffd700 !important;
+      box-shadow: 0 0 15px #ffd700, inset 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+
+    .mobile-symbol.scatter {
+      animation: scatter-pulse 2s infinite;
+      border-color: #4CAF50 !important;
+      box-shadow: 0 0 15px #4CAF50, inset 0 0 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .symbol-img {
+      width: 85%;
+      height: 85%;
+      object-fit: contain;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 4px;
+    }
+
+    @keyframes win-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes scatter-pulse {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 15px #4CAF50, inset 0 0 15px rgba(76, 175, 80, 0.3);
+      }
+      50% { 
+        transform: scale(1.08);
+        box-shadow: 0 0 20px #4CAF50, inset 0 0 20px rgba(76, 175, 80, 0.5);
+      }
+    }
+
+    /* Kontrollbereich */
+    .controls-area {
+      padding: 15px;
+      background: rgba(34, 40, 49, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 2px solid rgba(244, 211, 94, 0.3);
+      flex-shrink: 0;
+    }
+
+    /* Bet & Lines Controls */
+    .bet-controls, .lines-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .control-display {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      padding: 10px 20px;
+      border: 2px solid #f4d35e;
+      color: #f4d35e;
+      font-weight: bold;
+      font-size: 16px;
+      text-align: center;
+      flex: 1;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .action-btn {
+      min-height: 50px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      touch-action: manipulation;
+    }
+
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .spin-btn {
+      background: linear-gradient(180deg, #d32f2f, #b71c1c);
+      color: white;
+      font-size: 16px;
+      grid-column: 2;
+      box-shadow: 0 0 20px rgba(211, 47, 47, 0.5);
+    }
+
+    .spin-btn:active {
+      background: linear-gradient(180deg, #f44336, #d32f2f);
+      box-shadow: 0 0 25px rgba(244, 67, 54, 0.6);
+    }
+
+    .auto-btn {
+      background: linear-gradient(180deg, #2e7d32, #1b5e20);
+      color: white;
+    }
+
+    .max-btn {
+      background: linear-gradient(180deg, #ff9800, #f57c00);
+      color: white;
+    }
+
+    /* Message Display */
+    .message-display {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #333;
+      font-size: 13px;
+      text-align: center;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      transition: all 0.3s;
+    }
+
+    .message-win {
+      background: rgba(92, 242, 92, 0.1);
+      border-color: #5cf25c;
+      color: #5cf25c;
+      animation: message-pulse 1s infinite;
+    }
+
+    .message-free {
+      background: rgba(76, 175, 80, 0.1);
+      border-color: #4CAF50;
+      color: #4CAF50;
+      animation: message-pulse 1s infinite;
+    }
+
+    @keyframes message-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+      border: 1px solid #333;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: #aaa;
+      margin-bottom: 3px;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(34, 40, 49, 0.98);
+      backdrop-filter: blur(20px);
+      border-top: 2px solid rgba(244, 211, 94, 0.2);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+      z-index: 1000;
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .bottom-nav.hidden {
+      transform: translateY(100%);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 8px;
+      min-width: 60px;
+      touch-action: manipulation;
+    }
+
+    .nav-item:active {
+      opacity: 0.7;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      color: #f4d35e;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Modal Overlays */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: linear-gradient(145deg, #222831, #393e46);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 3px solid #f4d35e;
+      position: relative;
+      animation: modalSlideUp 0.3s ease;
+    }
+
+    @keyframes modalSlideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+      color: #f4d35e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: none;
+      touch-action: manipulation;
+    }
+
+    .modal-close:active {
+      background: rgba(244, 211, 94, 0.2);
+    }
+
+    /* Gesture Hints */
+    .gesture-hint {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      margin: 0 15px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .gesture-hint.show {
+      opacity: 1;
+    }
+
+    /* Free Spins Banner */
+    .free-spins-banner {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      background: linear-gradient(45deg, #4CAF50, #8BC34A);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+      z-index: 50;
+      transform: translateY(-100px);
+      transition: transform 0.3s ease;
+    }
+
+    .free-spins-banner.show {
+      transform: translateY(0);
+    }
+
+    /* Pull-to-Refresh */
+    .pull-to-refresh {
+      position: absolute;
+      top: -60px;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f4d35e;
+      font-size: 14px;
+      transition: transform 0.3s;
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+
+    .loading-spinner.active {
+      display: block;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 320px) {
+      .mobile-reels {
+        grid-template-rows: repeat(3, 20vw);
+      }
+      
+      .action-buttons {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+      }
+      
+      .action-btn {
+        font-size: 12px;
+        padding: 8px;
+      }
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+      .mobile-container {
+        flex-direction: row;
+      }
+      
+      .game-area {
+        width: 60%;
+        padding-right: 5px;
+      }
+      
+      .controls-area {
+        width: 40%;
+        padding-left: 5px;
+        border-top: none;
+        border-left: 2px solid rgba(244, 211, 94, 0.3);
+      }
+      
+      .mobile-reels {
+        grid-template-rows: repeat(3, 12vw);
+      }
+      
+      .bottom-nav {
+        display: none;
+      }
+    }
+
+    /* Disable text selection */
+    .no-select {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Vibration simulation */
+    @keyframes vibrate {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      75% { transform: translateX(2px); }
+    }
+
+    .vibrate {
+      animation: vibrate 0.1s linear 3;
+    }
+    
+    /* Gewinntabelle Styles */
+    .paytable-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin: 15px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+    
+    .paytable-symbol {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #333;
+      transition: all 0.3s;
+    }
+    
+    .paytable-symbol:hover {
+      transform: scale(1.03);
+      border-color: #f4d35e;
+    }
+    
+    .paytable-symbol-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin: 0 auto 8px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 6px;
+      padding: 3px;
+    }
+    
+    .paytable-symbol-name {
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #f4d35e;
+    }
+    
+    .paytable-symbol-payouts {
+      font-size: 10px;
+      color: #ccc;
+      line-height: 1.4;
+    }
+    
+    .paytable-symbol-scatter {
+      border-color: #4CAF50 !important;
+      background: rgba(76, 175, 80, 0.1);
+    }
+    
+    .paytable-header {
+      text-align: center;
+      color: #f4d35e;
+      margin: 15px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f4d35e;
+    }
+    
+    .paytable-note {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 15px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      border-left: 3px solid #4CAF50;
+    }
+    
+    /* Bet Warning */
+    .bet-warning {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(211, 47, 47, 0.9);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      text-align: center;
+      z-index: 150;
+      animation: fadeInOut 2s ease;
+      display: none;
+    }
+    
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+      20%, 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    
+    /* Free Spin Counter */
+    .free-spin-counter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(45deg, #4CAF50, #8BC34A);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 16px;
+      text-align: center;
+      z-index: 150;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5);
+      display: none;
+    }
+    
+    .free-spin-counter.active {
+      display: block;
+      animation: popInOut 3s ease;
+    }
+    
+    @keyframes popInOut {
+      0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      15%, 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+  </style>
+</head>
+<body class="no-select">
+  <div class="mobile-container">
+    <!-- Header -->
+    <div class="mobile-header">
+      <div class="header-left">
+        <button class="touch-btn" id="menuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="logo">ARGO SLOT</div>
+      </div>
+      <div class="header-right">
+        <button class="touch-btn" id="soundBtn">
+          <i class="fas fa-volume-up"></i>
+        </button>
+        <button class="touch-btn" id="helpBtn">
+          <i class="fas fa-question-circle"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Free Spins Banner -->
+    <div class="free-spins-banner" id="freeSpinsBanner">
+      <div>
+        <i class="fas fa-plane"></i>
+        <strong>URLAUB FREISPIELE</strong>
+      </div>
+      <div id="freeSpinsCount">0 verbleibend</div>
+    </div>
+
+    <!-- Free Spin Counter Animation -->
+    <div class="free-spin-counter" id="freeSpinCounter">
+      <div>🎉 FREISPIELE! 🎉</div>
+      <div id="freeSpinsWon">10 FREISPIELE</div>
+    </div>
+
+    <!-- Bet Warning -->
+    <div class="bet-warning" id="betWarning">
+      <i class="fas fa-exclamation-triangle"></i><br>
+      Einsatz wurde abgezogen!
+    </div>
+
+    <!-- Pull to Refresh -->
+    <div class="pull-to-refresh" id="pullToRefresh">
+      <i class="fas fa-sync-alt"></i> Ziehen zum Aktualisieren
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+      <i class="fas fa-spinner fa-spin fa-2x" style="color: #f4d35e;"></i>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-area" id="gameArea">
+      <!-- Info Cards -->
+      <div class="info-cards">
+        <div class="info-card" id="balanceCard">
+          <div class="card-label">Guthaben</div>
+          <div class="card-value balance-value" id="balance">1.000</div>
+        </div>
+        <div class="info-card" id="winCard">
+          <div class="card-label">Letzter Gewinn</div>
+          <div class="card-value win-value" id="lastWin">0</div>
+        </div>
+      </div>
+
+      <!-- Reels -->
+      <div class="mobile-reels-container">
+        <div class="mobile-reels" id="mobileReels"></div>
+      </div>
+
+      <!-- Gesture Hint -->
+      <div class="gesture-hint" id="gestureHint">
+        👆 Einfach tippen zum Drehen • 👆👆 Doppeltippen für Max-Einsatz • 👇 Lang drücken für Auto-Spin
+      </div>
+    </div>
+
+    <!-- Controls Area -->
+    <div class="controls-area">
+      <!-- Bet Controls -->
+      <div class="bet-controls">
+        <button class="touch-btn touch-btn-lg" id="betMinusBtn">-</button>
+        <div class="control-display" id="betDisplay">Einsatz: 10</div>
+        <button class="touch-btn touch-btn-lg" id="betPlusBtn">+</button>
+      </div>
+
+      <!-- Lines Controls -->
+      <div class="lines-controls">
+        <button class="touch-btn touch-btn-lg" id="linesMinusBtn">-</button>
+        <div class="control-display" id="linesDisplay">Linien: 15</div>
+        <button class="touch-btn touch-btn-lg" id="linesPlusBtn">+</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="action-btn auto-btn" id="autoBtn">
+          <i class="fas fa-sync-alt"></i> AUTO
+        </button>
+        <button class="action-btn spin-btn" id="spinBtn">
+          <i class="fas fa-play"></i> SPIN
+        </button>
+        <button class="action-btn max-btn" id="maxBtn">
+          <i class="fas fa-fire"></i> MAX
+        </button>
+      </div>
+
+      <!-- Message Display -->
+      <div class="message-display" id="messageDisplay">
+        Willkommen! Tippe auf SPIN zum Starten.
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats">
+        <div class="stat-card">
+          <div class="stat-label">Spins</div>
+          <div class="stat-value" id="totalSpins">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Gewinnrate</div>
+          <div class="stat-value" id="winRate">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav" id="bottomNav">
+      <div class="nav-item" id="navStats">
+        <i class="fas fa-chart-line nav-icon"></i>
+        <div class="nav-label">Stats</div>
+      </div>
+      <div class="nav-item" id="navPaytable">
+        <i class="fas fa-table nav-icon"></i>
+        <div class="nav-label">Tabelle</div>
+      </div>
+      <div class="nav-item" id="navHistory">
+        <i class="fas fa-history nav-icon"></i>
+        <div class="nav-label">Verlauf</div>
+      </div>
+      <div class="nav-item" id="navSettings">
+        <i class="fas fa-cog nav-icon"></i>
+        <div class="nav-label">Einst.</div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Stats Modal -->
+    <div class="modal-overlay" id="statsModal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('statsModal')">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3 style="color: #f4d35e; margin-bottom: 15px;">Spielstatistiken</h3>
+        <div style="display: grid; gap: 10px;">
+          <div><strong>Heutige Spins:</strong> <span id="modalSpins">0</span></div>
+          <div><strong>Heutiger Gewinn:</strong> <span id="modalWins">0</span></div>
+          <div><strong>Bestes Ergebnis:</strong> <span id="modalBestWin">0</span></div>
+          <div><strong>Gewinnrate:</strong> <span id="modalWinRate">0%</span></div>
+          <div><strong>Freispiele gewonnen:</strong> <span id="modalFreeSpins">0</span></div>
+          <div><strong>Verbleibende Freispiele:</strong> <span id="modalRemainingFreeSpins">0</span></div>
+        </div>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
+          <small style="color: #aaa;">Hinweis: Dies ist ein Demo-Spiel ohne echtes Geld</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paytable Modal -->
+    <div class="modal-overlay" id="paytableModal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('paytableModal')">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3 class="paytable-header">Gewinntabelle - Multiplikatoren pro Linie</h3>
+        
+        <div class="paytable-container" id="paytableContainer">
+          <!-- Symbols werden dynamisch generiert -->
+        </div>
+        
+        <div class="paytable-note">
+          <strong>🎯 SCATTER (Urlaub) - Besonderheit:</strong><br>
+          • 3+ SCATTER = 10 Freispiele<br>
+          • 4 SCATTER = 15 Freispiele<br>
+          • 5 SCATTER = 20 Freispiele<br>
+          • Während Freispielen: 3x Multiplikator auf alle Gewinne<br>
+          • Freispiele werden durch 3+ SCATTER in beliebigen Positionen ausgelöst
+        </div>
+        
+        <div class="paytable-note">
+          <strong>📊 Allgemeine Regeln:</strong><br>
+          • Gewinne zählen nur von links nach rechts<br>
+          • Pro Drehung wird der Einsatz abgezogen<br>
+          • Scatter-Gewinne werden zusätzlich zu Liniengewinnen ausgezahlt<br>
+          • Freispiele können während Freispielen erneut ausgelöst werden
+        </div>
+      </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('historyModal')">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3 style="color: #f4d35e; margin-bottom: 15px;">Spielverlauf</h3>
+        <div id="historyList" style="max-height: 300px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+          <div style="text-align: center; color: #aaa; padding: 20px;">
+            <i class="fas fa-history fa-2x" style="margin-bottom: 10px; display: block;"></i>
+            Kein Spielverlauf verfügbar
+          </div>
+        </div>
+        <div style="margin-top: 15px; text-align: center;">
+          <button class="action-btn" onclick="clearHistory()" style="background: #d32f2f; padding: 8px 20px;">
+            <i class="fas fa-trash"></i> Verlauf löschen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('settingsModal')">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3 style="color: #f4d35e; margin-bottom: 15px;">Einstellungen</h3>
+        <div style="display: grid; gap: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Sound</span>
+            <button class="touch-btn" id="soundToggleBtn">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Vibration</span>
+            <button class="touch-btn" id="vibrationToggleBtn">
+              <i class="fas fa-vibrate"></i>
+            </button>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Gestenhinweise</span>
+            <button class="touch-btn" id="hintsToggleBtn">
+              <i class="fas fa-lightbulb"></i>
+            </button>
+          </div>
+          <div style="margin-top: 20px;">
+            <button class="action-btn" onclick="resetStats()" style="width: 100%; background: #d32f2f;">
+              <i class="fas fa-redo"></i> Statistiken zurücksetzen
+            </button>
+          </div>
+          <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
+            <small style="color: #f4d35e;">🎮 Mobile Gesten:</small><br>
+            <small style="color: #aaa; font-size: 11px;">
+              • 👆 Einfach tippen = Spin<br>
+              • 👆👆 Doppeltippen = Max-Einsatz<br>
+              • 👇 Lang drücken = Auto-Spin<br>
+              • ⬇️ Ziehen = Spiel aktualisieren<br>
+              • ➡️ Swipe rechts = Gewinntabelle<br>
+              • ⬅️ Swipe links = Statistiken
+            </small>
+          </div>
+          <div style="margin-top: 15px; padding: 10px; background: rgba(255, 0, 0, 0.1); border-radius: 8px; border-left: 3px solid #ff4444;">
+            <small style="color: #ff4444;">
+              <strong>⚠️ Spielsucht-Hinweis:</strong><br>
+              Dies ist ein Demo-Spiel. Spielen kann süchtig machen.<br>
+              Hilfe unter: 0800 137 27 00 (kostenlos)
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    // ============================================
+    // MOBILE SLOT - TOUCH-OPTIMIERTE VERSION
+    // ============================================
+
+    // Konfiguration
+    const MOBILE_CONFIG = {
+      symbols: [
+        {
+          id: "YOUTUBE_LOGO",
+          name: "YouTube Logo",
+          weight: 3,
+          multiplier: {3: 10, 4: 50, 5: 300},
+          url: "https://yt3.googleusercontent.com/ytc/AIdro_k2ME-LZeXI9Ab6PpYdMRpCLZx2JFoBHHWqRiSiJWeivD0=s160-c-k-c0x00ffffff-no-rj",
+          color: "#FF0000"
+        },
+        {
+          id: "ARGO_VOITH_LOGO",
+          name: "ARGO Voith Logo",
+          weight: 3,
+          multiplier: {3: 8, 4: 40, 5: 220},
+          url: "https://www.argo-hytos.com/typo3temp/_processed_/csm_Argo-Hytos_Voith_Logo_RGB_01_87252b57cb.png",
+          color: "#003366"
+        },
+        {
+          id: "FILTERDECKEL",
+          name: "Filterdeckel",
+          weight: 4,
+          multiplier: {3: 6, 4: 30, 5: 150},
+          url: "https://hydraulik-store.de/wp-content/uploads/2022/06/Belueftungsfilterdeckel.jpg",
+          color: "#666666"
+        },
+        {
+          id: "SO0426",
+          name: "SO0426 Produkt",
+          weight: 4,
+          multiplier: {3: 5, 4: 20, 5: 100},
+          url: "https://www.argo-hytos.com/fileadmin/user_upload/categories/SO0426_150dpi.jpg",
+          color: "#0066CC"
+        },
+        {
+          id: "AS080",
+          name: "AS080 Baureihe",
+          weight: 5,
+          multiplier: {3: 4, 4: 15, 5: 80},
+          url: "https://www.argo-hytos.com/fileadmin/user_upload/categories/AS080_150dpi.jpg",
+          color: "#009933"
+        },
+        {
+          id: "MFE",
+          name: "MFE Filter",
+          weight: 6,
+          multiplier: {3: 3, 4: 12, 5: 60},
+          url: "https://www.argo-hytos.com/fileadmin/user_upload/categories/MFE_150dpi_01.jpg",
+          color: "#CC3300"
+        },
+        {
+          id: "SCATTER",
+          name: "Scatter (Urlaub)",
+          weight: 2,
+          isScatter: true,
+          url: "https://cdn-icons-png.flaticon.com/512/546/546272.png",
+          color: "#4CAF50",
+          freeSpins: {3: 10, 4: 15, 5: 20} // Freispiele je nach Anzahl der Scatter
+        }
+      ],
+      
+      paylines: [
+        [0,0,0,0,0], [1,1,1,1,1], [2,2,2,2,2],
+        [0,1,2,1,0], [2,1,0,1,2], [0,0,1,2,2],
+        [2,2,1,0,0], [1,0,0,0,1], [1,2,2,2,1],
+        [0,2,0,2,0], [2,0,2,0,2], [1,0,1,2,1],
+        [1,2,1,0,1], [0,1,0,1,0], [2,1,2,1,2]
+      ],
+      
+      betSteps: [1, 5, 10, 25, 50, 100, 250, 500],
+      maxBet: 500,
+      minLines: 3,
+      maxLines: 15,
+      
+      stats: {
+        dailySpins: 0,
+        dailyWins: 0,
+        totalSpins: 0,
+        totalWins: 0,
+        biggestWin: 0,
+        winStreak: 0,
+        bestStreak: 0,
+        freeSpinsTriggered: 0,
+        freeSpinsWon: 0,
+        totalFreeSpinsWon: 0,
+        vibrationEnabled: true,
+        hintsEnabled: true
+      },
+      
+      gameHistory: []
+    };
+
+    // State Management
+    let MobileState = {
+      balance: 1000,
+      currentBet: 10,
+      currentLines: 15,
+      isSpinning: false,
+      autoPlay: false,
+      autoSpinsRemaining: 0,
+      soundEnabled: true,
+      winAmount: 0,
+      freeSpins: 0,
+      isFreeSpin: false,
+      freeSpinMultiplier: 1,
+      lastTouchTime: 0,
+      longPressTimer: null,
+      totalBet: 0,
+      lastTotalBet: 0
+    };
+
+
+    // ------------------------------------------------------------
+    // Persistenter Spielstand (LocalStorage)
+    // ------------------------------------------------------------
+    const SLOT_STORAGE_KEY = 'argo_slot_state_v1';
+    const SLOT_STORAGE_VERSION = 1;
+
+    let __saveTimer = null;
+    function scheduleSaveState() {
+      // Debounce, damit wir nicht bei jedem UI-Frame schreiben
+      if (__saveTimer) return;
+      __saveTimer = setTimeout(() => {
+        __saveTimer = null;
+        saveSlotState();
+      }, 250);
+    }
+
+    function safeNumber(n, fallback = 0) {
+      n = Number(n);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function clamp(n, min, max) {
+      n = safeNumber(n, min);
+      if (n < min) return min;
+      if (n > max) return max;
+      return n;
+    }
+
+    function saveSlotState() {
+      try {
+        const payload = {
+          v: SLOT_STORAGE_VERSION,
+          savedAt: new Date().toISOString(),
+          state: {
+            balance: clamp(MobileState.balance, 0, 1e15),
+            currentBet: clamp(MobileState.currentBet, 1, MOBILE_CONFIG.maxBet),
+            currentLines: clamp(MobileState.currentLines, MOBILE_CONFIG.minLines, MOBILE_CONFIG.maxLines),
+            autoPlay: !!MobileState.autoPlay,
+            autoSpinsRemaining: clamp(MobileState.autoSpinsRemaining, 0, 1e6),
+            soundEnabled: !!MobileState.soundEnabled,
+            winAmount: clamp(MobileState.winAmount, 0, 1e15),
+            freeSpins: clamp(MobileState.freeSpins, 0, 1e6),
+            isFreeSpin: !!MobileState.isFreeSpin,
+            freeSpinMultiplier: clamp(MobileState.freeSpinMultiplier, 1, 1e6),
+            totalBet: clamp(MobileState.totalBet, 0, 1e15),
+            lastTotalBet: clamp(MobileState.lastTotalBet, 0, 1e15)
+          },
+          stats: { ...MOBILE_CONFIG.stats },
+          gameHistory: Array.isArray(MOBILE_CONFIG.gameHistory) ? MOBILE_CONFIG.gameHistory.slice(-200) : []
+        };
+        localStorage.setItem(SLOT_STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {
+        // Wenn Storage voll/gesperrt ist, Spiel läuft trotzdem weiter
+        // console.warn('saveSlotState failed', e);
+      }
+    }
+
+    function loadSlotState() {
+      try {
+        const raw = localStorage.getItem(SLOT_STORAGE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+
+        if (!data || data.v !== SLOT_STORAGE_VERSION) return false;
+
+        if (data.state && typeof data.state === 'object') {
+          MobileState.balance = clamp(data.state.balance, 0, 1e15);
+          MobileState.currentBet = clamp(data.state.currentBet, 1, MOBILE_CONFIG.maxBet);
+          MobileState.currentLines = clamp(data.state.currentLines, MOBILE_CONFIG.minLines, MOBILE_CONFIG.maxLines);
+          MobileState.autoPlay = !!data.state.autoPlay;
+          MobileState.autoSpinsRemaining = clamp(data.state.autoSpinsRemaining, 0, 1e6);
+          MobileState.soundEnabled = !!data.state.soundEnabled;
+          MobileState.winAmount = clamp(data.state.winAmount, 0, 1e15);
+          MobileState.freeSpins = clamp(data.state.freeSpins, 0, 1e6);
+          MobileState.isFreeSpin = !!data.state.isFreeSpin;
+          MobileState.freeSpinMultiplier = clamp(data.state.freeSpinMultiplier, 1, 1e6);
+          MobileState.totalBet = clamp(data.state.totalBet, 0, 1e15);
+          MobileState.lastTotalBet = clamp(data.state.lastTotalBet, 0, 1e15);
+        }
+
+        if (data.stats && typeof data.stats === 'object') {
+          // Nur bekannte Keys übernehmen
+          for (const k of Object.keys(MOBILE_CONFIG.stats)) {
+            if (k in data.stats) {
+              const v = data.stats[k];
+              MOBILE_CONFIG.stats[k] = (typeof MOBILE_CONFIG.stats[k] === 'boolean') ? !!v : safeNumber(v, MOBILE_CONFIG.stats[k]);
+            }
+          }
+        }
+
+        if (Array.isArray(data.gameHistory)) {
+          MOBILE_CONFIG.gameHistory = data.gameHistory.slice(-200);
+        }
+
+        return true;
+      } catch (e) {
+        // console.warn('loadSlotState failed', e);
+        return false;
+      }
+    }
+
+    // Save auf Page-Lifecycle
+    window.addEventListener('pagehide', saveSlotState, { capture: true });
+    window.addEventListener('beforeunload', saveSlotState, { capture: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveSlotState();
+    }, { capture: true });
+    // DOM Elemente
+    let MobileElements = {};
+
+    // Initialisierung
+    function mobileInit() {
+      // DOM Elemente sammeln
+      MobileElements = {
+        mobileReels: document.getElementById('mobileReels'),
+        balance: document.getElementById('balance'),
+        lastWin: document.getElementById('lastWin'),
+        messageDisplay: document.getElementById('messageDisplay'),
+        spinBtn: document.getElementById('spinBtn'),
+        autoBtn: document.getElementById('autoBtn'),
+        betMinusBtn: document.getElementById('betMinusBtn'),
+        betPlusBtn: document.getElementById('betPlusBtn'),
+        linesMinusBtn: document.getElementById('linesMinusBtn'),
+        linesPlusBtn: document.getElementById('linesPlusBtn'),
+        maxBtn: document.getElementById('maxBtn'),
+        betDisplay: document.getElementById('betDisplay'),
+        linesDisplay: document.getElementById('linesDisplay'),
+        freeSpinsBanner: document.getElementById('freeSpinsBanner'),
+        freeSpinsCount: document.getElementById('freeSpinsCount'),
+        freeSpinCounter: document.getElementById('freeSpinCounter'),
+        freeSpinsWon: document.getElementById('freeSpinsWon'),
+        betWarning: document.getElementById('betWarning'),
+        totalSpins: document.getElementById('totalSpins'),
+        winRate: document.getElementById('winRate'),
+        gestureHint: document.getElementById('gestureHint'),
+        gameArea: document.getElementById('gameArea'),
+        paytableContainer: document.getElementById('paytableContainer')
+      };
+      
+      // Persistenten Spielstand laden
+      loadSlotState();
+      
+      // Reels erstellen
+      createMobileReels();
+      
+      // Gewinntabelle generieren
+      generatePaytable();
+      
+      // Touch Events einrichten
+      setupTouchEvents();
+      
+      // Event Listener
+      setupEventListeners();
+      
+      // Stats laden
+      loadMobileStats();
+      
+      // UI aktualisieren
+      updateMobileUI();
+      
+      // Gestenhinweis zeigen
+      if (MOBILE_CONFIG.stats.hintsEnabled) {
+        setTimeout(() => {
+          showGestureHint();
+        }, 2000);
+      }
+      
+      // PWA Installation fördern
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.log('Service Worker registration failed:', err);
+          });
+        });
+      }
+    }
+
+    // Gewinntabelle generieren
+    function generatePaytable() {
+      MobileElements.paytableContainer.innerHTML = '';
+      
+      MOBILE_CONFIG.symbols.forEach(symbol => {
+        const symbolElement = document.createElement('div');
+        symbolElement.className = 'paytable-symbol';
+        if (symbol.isScatter) {
+          symbolElement.classList.add('paytable-symbol-scatter');
+        }
+        
+        let payoutHTML = '';
+        
+        if (symbol.isScatter) {
+          // Scatter spezielle Logik
+          payoutHTML = `
+            <div class="paytable-symbol-name" style="color: ${symbol.color}">
+              ${symbol.name}
+            </div>
+            <img src="${symbol.url}" alt="${symbol.name}" class="paytable-symbol-img">
+            <div class="paytable-symbol-payouts">
+              <strong>FREISPIELE:</strong><br>
+              3 Scatter = ${symbol.freeSpins[3]} Freispiele<br>
+              4 Scatter = ${symbol.freeSpins[4]} Freispiele<br>
+              5 Scatter = ${symbol.freeSpins[5]} Freispiele<br>
+              <strong>3x Multiplikator</strong><br>
+              während Freispielen
+            </div>
+          `;
+        } else {
+          // Normale Symbole
+          payoutHTML = `
+            <div class="paytable-symbol-name" style="color: ${symbol.color}">
+              ${symbol.name}
+            </div>
+            <img src="${symbol.url}" alt="${symbol.name}" class="paytable-symbol-img">
+            <div class="paytable-symbol-payouts">
+              <strong>Multiplikatoren:</strong><br>
+              3 Symbole: ${symbol.multiplier[3]}x<br>
+              4 Symbole: ${symbol.multiplier[4]}x<br>
+              5 Symbole: ${symbol.multiplier[5]}x<br>
+              <small>(pro Gewinnlinie)</small>
+            </div>
+          `;
+        }
+        
+        symbolElement.innerHTML = payoutHTML;
+        MobileElements.paytableContainer.appendChild(symbolElement);
+      });
+    }
+
+    // Mobile Reels erstellen
+    function createMobileReels() {
+      const ROWS = 3;
+      const COLS = 5;
+      
+      MobileElements.mobileReels.innerHTML = '';
+      
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'mobile-symbol';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          
+          const symbol = getRandomSymbol();
+          const img = document.createElement('img');
+          img.src = symbol.url;
+          img.alt = symbol.id;
+          img.className = 'symbol-img';
+          img.loading = 'lazy';
+          
+          cell.appendChild(img);
+          cell.dataset.symbol = symbol.id;
+          
+          if (symbol.isScatter) {
+            cell.classList.add('scatter');
+          }
+          
+          MobileElements.mobileReels.appendChild(cell);
+        }
+      }
+    }
+
+    // Zufälliges Symbol
+    function getRandomSymbol() {
+      const totalWeight = MOBILE_CONFIG.symbols.reduce((sum, s) => sum + s.weight, 0);
+      let random = Math.random() * totalWeight;
+      
+      for (const symbol of MOBILE_CONFIG.symbols) {
+        if (random < symbol.weight) return symbol;
+        random -= symbol.weight;
+      }
+      
+      return MOBILE_CONFIG.symbols[0];
+    }
+
+    // Touch Events einrichten
+    function setupTouchEvents() {
+      // Double Tap für Max-Einsatz
+      MobileElements.gameArea.addEventListener('touchstart', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - MobileState.lastTouchTime;
+        
+        if (tapLength < 300 && tapLength > 0) {
+          // Double Tap erkannt
+          e.preventDefault();
+          setMaxBet();
+        }
+        
+        MobileState.lastTouchTime = currentTime;
+      });
+      
+      // Long Press für Auto-Spin
+      MobileElements.gameArea.addEventListener('touchstart', (e) => {
+        MobileState.longPressTimer = setTimeout(() => {
+          toggleAutoPlay();
+          vibrate();
+        }, 800);
+      });
+      
+      MobileElements.gameArea.addEventListener('touchend', () => {
+        clearTimeout(MobileState.longPressTimer);
+      });
+      
+      MobileElements.gameArea.addEventListener('touchmove', () => {
+        clearTimeout(MobileState.longPressTimer);
+      });
+      
+      // Pull to Refresh
+      let startY = 0;
+      let currentY = 0;
+      
+      MobileElements.gameArea.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+      });
+      
+      MobileElements.gameArea.addEventListener('touchmove', (e) => {
+        currentY = e.touches[0].clientY;
+        const pullDistance = startY - currentY;
+        
+        if (pullDistance < -50 && window.scrollY <= 0) {
+          // Pull down detected
+          const pullToRefresh = document.getElementById('pullToRefresh');
+          pullToRefresh.style.transform = `translateY(${Math.min(-pullDistance, 60)}px)`;
+        }
+      });
+      
+      MobileElements.gameArea.addEventListener('touchend', () => {
+        const pullToRefresh = document.getElementById('pullToRefresh');
+        if (parseInt(pullToRefresh.style.transform.replace('translateY(', '')) > 40) {
+          // Pull to Refresh auslösen
+          refreshGame();
+        }
+        pullToRefresh.style.transform = 'translateY(-60px)';
+      });
+      
+      // Swipe für Navigation
+      let touchStartX = 0;
+      
+      MobileElements.gameArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+      });
+      
+      MobileElements.gameArea.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) > 50) {
+          if (swipeDistance > 0) {
+            // Swipe right - Show paytable
+            showModal('paytableModal');
+          } else {
+            // Swipe left - Show stats
+            showModal('statsModal');
+          }
+        }
+      });
+    }
+
+    // Event Listener für Buttons
+    function setupEventListeners() {
+      MobileElements.spinBtn.addEventListener('click', startMobileSpin);
+      MobileElements.spinBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        startMobileSpin();
+      });
+      
+      MobileElements.autoBtn.addEventListener('click', toggleAutoPlay);
+      MobileElements.maxBtn.addEventListener('click', setMaxBet);
+      
+      MobileElements.betMinusBtn.addEventListener('click', decreaseBet);
+      MobileElements.betPlusBtn.addEventListener('click', increaseBet);
+      MobileElements.linesMinusBtn.addEventListener('click', decreaseLines);
+      MobileElements.linesPlusBtn.addEventListener('click', increaseLines);
+      
+      // Navigation
+      document.getElementById('navStats').addEventListener('click', () => showModal('statsModal'));
+      document.getElementById('navPaytable').addEventListener('click', () => showModal('paytableModal'));
+      document.getElementById('navSettings').addEventListener('click', () => showModal('settingsModal'));
+      document.getElementById('navHistory').addEventListener('click', () => showHistory());
+      
+      // Sound Toggle
+      document.getElementById('soundBtn').addEventListener('click', toggleSound);
+      document.getElementById('soundToggleBtn').addEventListener('click', toggleSound);
+      
+      // Vibration Toggle
+      document.getElementById('vibrationToggleBtn').addEventListener('click', toggleVibration);
+      
+      // Hints Toggle
+      document.getElementById('hintsToggleBtn').addEventListener('click', toggleHints);
+      
+      // Hilfe
+      document.getElementById('helpBtn').addEventListener('click', () => {
+        showModal('paytableModal');
+      });
+      
+      // Menü
+      document.getElementById('menuBtn').addEventListener('click', () => {
+        const bottomNav = document.getElementById('bottomNav');
+        bottomNav.classList.toggle('hidden');
+      });
+    }
+
+    // Mobile Spin starten
+    function startMobileSpin() {
+      if (MobileState.isSpinning) return;
+      
+      // Gesamteinsatz berechnen
+      const totalBet = MobileState.currentBet * MobileState.currentLines;
+      MobileState.totalBet = totalBet;
+      
+      // Prüfe Guthaben (außer bei Freispielen)
+      if (MobileState.balance < totalBet && !MobileState.isFreeSpin) {
+        showMessage('Nicht genug Guthaben!', 'error');
+        if (MobileState.autoPlay) {
+          MobileState.autoPlay = false;
+          MobileState.autoSpinsRemaining = 0;
+        }
+        return;
+      }
+      
+      MobileState.isSpinning = true;
+      
+      // Einsatz abziehen (außer bei Freispielen)
+      if (!MobileState.isFreeSpin) {
+        MobileState.balance -= totalBet;
+        MobileState.lastTotalBet = totalBet;
+        MOBILE_CONFIG.stats.dailySpins++;
+        MOBILE_CONFIG.stats.totalSpins++;
+        
+        // Einsatz-Abzug anzeigen
+        showBetDeduction(totalBet);
+      } else {
+        MobileState.freeSpins--;
+      }
+      
+      // Win-Highlights entfernen
+      clearWinHighlights();
+      
+      // Nachricht
+      if (MobileState.isFreeSpin) {
+        showMessage(`Freispiel! Noch ${MobileState.freeSpins + 1} übrig`, 'free');
+      }
+      
+      MobileElements.lastWin.textContent = '0';
+      
+      // UI aktualisieren
+      updateMobileUI();
+      
+      // Spin Animation
+      animateMobileSpin().then(() => {
+        processMobileSpin();
+      }).catch(error => {
+        console.error('Spin error:', error);
+        MobileState.isSpinning = false;
+        updateMobileUI();
+        showMessage('Fehler beim Spin', 'error');
+      });
+    }
+
+    // Einsatz-Abzug anzeigen
+    function showBetDeduction(totalBet) {
+      const betWarning = document.getElementById('betWarning');
+      betWarning.innerHTML = `<i class="fas fa-minus-circle"></i><br>Einsatz: ${totalBet} abgezogen`;
+      betWarning.style.display = 'block';
+      
+      setTimeout(() => {
+        betWarning.style.display = 'none';
+      }, 2000);
+      
+      vibrate();
+    }
+
+    // Freispiel-Animation anzeigen
+    function showFreeSpinAnimation(freeSpinsCount) {
+      const counter = document.getElementById('freeSpinCounter');
+      const wonText = document.getElementById('freeSpinsWon');
+      
+      wonText.textContent = `${freeSpinsCount} FREISPIELE`;
+      counter.classList.add('active');
+      
+      setTimeout(() => {
+        counter.classList.remove('active');
+      }, 3000);
+      
+      // Spezielle Vibration für Freispiele
+      vibrate([200, 100, 200, 100, 300]);
+    }
+
+    // Mobile Spin Animation
+    function animateMobileSpin() {
+      return new Promise((resolve) => {
+        const cells = Array.from(MobileElements.mobileReels.querySelectorAll('.mobile-symbol'));
+        let animationStep = 0;
+        const totalSteps = 20;
+        
+        function animateStep() {
+          if (animationStep < totalSteps) {
+            // Schnelle Symbolwechsel
+            cells.forEach(cell => {
+              if (Math.random() < 0.4 && animationStep < totalSteps - 5) {
+                const symbol = getRandomSymbol();
+                const img = cell.querySelector('img');
+                if (img) {
+                  img.src = symbol.url;
+                  img.alt = symbol.id;
+                }
+                cell.dataset.symbol = symbol.id;
+                cell.classList.remove('scatter');
+                if (symbol.isScatter) {
+                  cell.classList.add('scatter');
+                }
+              }
+            });
+            
+            animationStep++;
+            setTimeout(animateStep, 50);
+          } else {
+            // Endgültige Symbole
+            cells.forEach(cell => {
+              const symbol = getRandomSymbol();
+              const img = cell.querySelector('img');
+              if (img) {
+                img.src = symbol.url;
+                img.alt = symbol.id;
+              }
+              cell.dataset.symbol = symbol.id;
+              cell.classList.remove('scatter');
+              if (symbol.isScatter) {
+                cell.classList.add('scatter');
+              }
+            });
+            
+            resolve();
+          }
+        }
+        
+        animateStep();
+      });
+    }
+
+    // Spin verarbeiten
+    function processMobileSpin() {
+      try {
+        // Gewinn berechnen
+        const winResult = calculateMobileWin();
+        const winAmount = winResult.amount;
+        
+        // Scatter prüfen
+        const scatterResult = checkScatter();
+        const scatterCount = scatterResult.scatterCount;
+        
+        // Freispiel-Logik
+        if (scatterCount >= 3) {
+          const scatterSymbol = MOBILE_CONFIG.symbols.find(s => s.id === "SCATTER");
+          const freeSpinsWon = scatterSymbol.freeSpins[scatterCount] || 10;
+          
+          MobileState.freeSpins += freeSpinsWon;
+          MOBILE_CONFIG.stats.freeSpinsTriggered++;
+          MOBILE_CONFIG.stats.freeSpinsWon += freeSpinsWon;
+          MOBILE_CONFIG.stats.totalFreeSpinsWon += freeSpinsWon;
+          
+          if (!MobileState.isFreeSpin) {
+            MobileState.isFreeSpin = true;
+            MobileState.freeSpinMultiplier = 3;
+          }
+          
+          // Freispiel-Animation anzeigen
+          showFreeSpinAnimation(freeSpinsWon);
+          
+          // Free Spins Banner anzeigen
+          showFreeSpinsBanner();
+        }
+        
+        if (winAmount > 0) {
+          const finalWinAmount = Math.floor(winAmount * MobileState.freeSpinMultiplier);
+          MobileState.winAmount = finalWinAmount;
+          
+          MobileState.balance += finalWinAmount;
+          MOBILE_CONFIG.stats.dailyWins += finalWinAmount;
+          MOBILE_CONFIG.stats.totalWins++;
+          MOBILE_CONFIG.stats.winStreak++;
+          
+          if (finalWinAmount > MOBILE_CONFIG.stats.biggestWin) {
+            MOBILE_CONFIG.stats.biggestWin = finalWinAmount;
+          }
+          
+          if (MOBILE_CONFIG.stats.winStreak > MOBILE_CONFIG.stats.bestStreak) {
+            MOBILE_CONFIG.stats.bestStreak = MOBILE_CONFIG.stats.winStreak;
+          }
+          
+          // Gewinn anzeigen
+          MobileElements.lastWin.textContent = finalWinAmount.toLocaleString('de-DE');
+          highlightWinningSymbols(winResult.winningLines);
+          
+          let message = `GEWINN! ${finalWinAmount.toLocaleString('de-DE')} Credits`;
+          if (MobileState.freeSpinMultiplier > 1) {
+            message += ` (${MobileState.freeSpinMultiplier}x)`;
+          }
+          
+          if (scatterCount >= 3) {
+            const freeSpinsWon = scatterSymbol.freeSpins[scatterCount] || 10;
+            message += ` + ${freeSpinsWon} FREISPIELE!`;
+            showMessage(message, 'free');
+          } else {
+            showMessage(message, 'win');
+          }
+          
+          // Spielverlauf speichern
+          addToHistory(finalWinAmount, scatterCount);
+          
+          // Vibration bei Gewinn
+          if (finalWinAmount > MobileState.currentBet * 10) {
+            vibrate([100, 50, 100]);
+          }
+          
+        } else {
+          MOBILE_CONFIG.stats.winStreak = 0;
+          
+          if (scatterCount >= 3) {
+            const scatterSymbol = MOBILE_CONFIG.symbols.find(s => s.id === "SCATTER");
+            const freeSpinsWon = scatterSymbol.freeSpins[scatterCount] || 10;
+            showMessage(`${freeSpinsWon} FREISPIELE! Kein zusätzlicher Gewinn.`, 'free');
+          } else if (MobileState.isFreeSpin) {
+            showMessage(`Kein Gewinn. ${MobileState.freeSpins} Freispiele übrig.`, 'free');
+          } else {
+            showMessage('Kein Gewinn. Nochmal versuchen!', 'info');
+          }
+        }
+        
+        // Freispiele beendet?
+        if (MobileState.freeSpins === 0 && MobileState.isFreeSpin) {
+          MobileState.isFreeSpin = false;
+          MobileState.freeSpinMultiplier = 1;
+          hideFreeSpinsBanner();
+          showMessage('Freispiele beendet!', 'info');
+        }
+        
+      } catch (error) {
+        console.error('Process error:', error);
+        showMessage('Fehler bei der Berechnung', 'error');
+      } finally {
+        MobileState.isSpinning = false;
+        
+        // Auto-Spin fortsetzen
+        if (MobileState.autoPlay && MobileState.autoSpinsRemaining > 0) {
+          MobileState.autoSpinsRemaining--;
+          
+          const totalBet = MobileState.currentBet * MobileState.currentLines;
+          if (MobileState.balance >= totalBet || MobileState.isFreeSpin) {
+            setTimeout(() => startMobileSpin(), 1000);
+          } else {
+            MobileState.autoPlay = false;
+            MobileState.autoSpinsRemaining = 0;
+            showMessage('Auto-Play: Kein Guthaben', 'info');
+          }
+        } else if (MobileState.autoPlay && MobileState.autoSpinsRemaining === 0) {
+          MobileState.autoPlay = false;
+          showMessage('Auto-Play beendet', 'info');
+        }
+        
+        updateMobileUI();
+        saveMobileStats();
+        updateModalStats();
+      }
+    }
+
+    // Gewinn berechnen
+    function calculateMobileWin() {
+      const ROWS = 3;
+      const COLS = 5;
+      const grid = [];
+      
+      for (let row = 0; row < ROWS; row++) {
+        grid[row] = [];
+        for (let col = 0; col < COLS; col++) {
+          const cell = MobileElements.mobileReels.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+          grid[row][col] = cell ? cell.dataset.symbol : "";
+        }
+      }
+      
+      let totalWin = 0;
+      const winningLines = [];
+      
+      for (let lineIndex = 0; lineIndex < MobileState.currentLines; lineIndex++) {
+        const payline = MOBILE_CONFIG.paylines[lineIndex];
+        const lineSymbols = [];
+        
+        for (let col = 0; col < COLS; col++) {
+          const row = payline[col];
+          lineSymbols.push(grid[row][col]);
+        }
+        
+        if (lineSymbols[0] === "SCATTER") continue;
+        
+        let matchCount = 1;
+        let firstSymbol = lineSymbols[0];
+        
+        for (let i = 1; i < lineSymbols.length; i++) {
+          if (lineSymbols[i] === firstSymbol) {
+            matchCount++;
+          } else {
+            break;
+          }
+        }
+        
+        if (matchCount >= 3) {
+          const symbol = MOBILE_CONFIG.symbols.find(s => s.id === firstSymbol);
+          if (symbol && symbol.multiplier) {
+            const winMultiplier = symbol.multiplier[matchCount];
+            if (winMultiplier) {
+              const lineWin = MobileState.currentBet * winMultiplier;
+              totalWin += lineWin;
+              
+              winningLines.push({
+                lineIndex,
+                symbol: firstSymbol,
+                matchCount,
+                winAmount: lineWin,
+                positions: payline.map((row, col) => ({ row, col }))
+              });
+            }
+          }
+        }
+      }
+      
+      return {
+        amount: totalWin,
+        winningLines
+      };
+    }
+
+    // Scatter prüfen
+    function checkScatter() {
+      const cells = Array.from(MobileElements.mobileReels.querySelectorAll('.mobile-symbol'));
+      const scatterCells = cells.filter(cell => cell.dataset.symbol === "SCATTER");
+      
+      return {
+        scatterCount: scatterCells.length,
+        scatterCells: scatterCells.map(cell => ({
+          row: parseInt(cell.dataset.row),
+          col: parseInt(cell.dataset.col)
+        }))
+      };
+    }
+
+    // Gewinnende Symbole hervorheben
+    function highlightWinningSymbols(winningLines) {
+      MobileElements.mobileReels.querySelectorAll('.win').forEach(cell => {
+        cell.classList.remove('win');
+      });
+      
+      winningLines.forEach(line => {
+        line.positions.forEach((pos, index) => {
+          if (index < line.matchCount) {
+            const cell = MobileElements.mobileReels.querySelector(
+              `[data-row="${pos.row}"][data-col="${pos.col}"]`
+            );
+            if (cell) {
+              cell.classList.add('win');
+            }
+          }
+        });
+      });
+    }
+
+    // Win-Highlights entfernen
+    function clearWinHighlights() {
+      MobileElements.mobileReels.querySelectorAll('.win').forEach(cell => {
+        cell.classList.remove('win');
+      });
+    }
+
+    // Einsatz erhöhen
+    function increaseBet() {
+      if (MobileState.isSpinning) return;
+      
+      const currentIndex = MOBILE_CONFIG.betSteps.indexOf(MobileState.currentBet);
+      if (currentIndex < MOBILE_CONFIG.betSteps.length - 1) {
+        MobileState.currentBet = MOBILE_CONFIG.betSteps[currentIndex + 1];
+        updateMobileUI();
+        vibrate();
+      }
+    }
+
+    // Einsatz verringern
+    function decreaseBet() {
+      if (MobileState.isSpinning) return;
+      
+      const currentIndex = MOBILE_CONFIG.betSteps.indexOf(MobileState.currentBet);
+      if (currentIndex > 0) {
+        MobileState.currentBet = MOBILE_CONFIG.betSteps[currentIndex - 1];
+        updateMobileUI();
+        vibrate();
+      }
+    }
+
+    // Linien erhöhen
+    function increaseLines() {
+      if (MobileState.isSpinning) return;
+      
+      if (MobileState.currentLines < MOBILE_CONFIG.maxLines) {
+        MobileState.currentLines++;
+        updateMobileUI();
+        vibrate();
+      }
+    }
+
+    // Linien verringern
+    function decreaseLines() {
+      if (MobileState.isSpinning) return;
+      
+      if (MobileState.currentLines > MOBILE_CONFIG.minLines) {
+        MobileState.currentLines--;
+        updateMobileUI();
+        vibrate();
+      }
+    }
+
+    // Max-Einsatz
+    function setMaxBet() {
+      if (MobileState.isSpinning) return;
+      
+      MobileState.currentBet = MOBILE_CONFIG.maxBet;
+      MobileState.currentLines = MOBILE_CONFIG.maxLines;
+      updateMobileUI();
+      vibrate([50, 30, 50, 30, 50]);
+    }
+
+    // Auto-Play umschalten
+    function toggleAutoPlay() {
+      if (MobileState.isSpinning) return;
+      
+      MobileState.autoPlay = !MobileState.autoPlay;
+      
+      if (MobileState.autoPlay) {
+        MobileState.autoSpinsRemaining = 10;
+        showMessage('Auto-Play: 10 Spins', 'info');
+        setTimeout(() => startMobileSpin(), 500);
+      } else {
+        showMessage('Auto-Play beendet', 'info');
+      }
+      
+      updateMobileUI();
+    }
+
+    // UI aktualisieren
+    function updateMobileUI() {
+      MobileElements.balance.textContent = MobileState.balance.toLocaleString('de-DE');
+      MobileElements.betDisplay.textContent = `Einsatz: ${MobileState.currentBet}`;
+      MobileElements.linesDisplay.textContent = `Linien: ${MobileState.currentLines}`;
+      MobileElements.freeSpinsCount.textContent = `${MobileState.freeSpins} verbleibend`;
+      
+      // Free Spins Banner
+      if (MobileState.freeSpins > 0) {
+        showFreeSpinsBanner();
+      } else {
+        hideFreeSpinsBanner();
+      }
+      
+      // Stats
+      MobileElements.totalSpins.textContent = MOBILE_CONFIG.stats.totalSpins;
+      const rate = MOBILE_CONFIG.stats.totalSpins > 0 
+        ? ((MOBILE_CONFIG.stats.totalWins / MOBILE_CONFIG.stats.totalSpins) * 100).toFixed(1)
+        : '0';
+      MobileElements.winRate.textContent = `${rate}%`;
+      
+      // Buttons
+      MobileElements.spinBtn.disabled = MobileState.isSpinning;
+      MobileElements.betMinusBtn.disabled = MobileState.isSpinning || MobileState.currentBet <= 1;
+      MobileElements.betPlusBtn.disabled = MobileState.isSpinning || MobileState.currentBet >= MOBILE_CONFIG.maxBet;
+      MobileElements.linesMinusBtn.disabled = MobileState.isSpinning || MobileState.currentLines <= MOBILE_CONFIG.minLines;
+      MobileElements.linesPlusBtn.disabled = MobileState.isSpinning || MobileState.currentLines >= MOBILE_CONFIG.maxLines;
+      MobileElements.maxBtn.disabled = MobileState.isSpinning;
+      MobileElements.autoBtn.disabled = MobileState.isSpinning;
+      
+      // Auto-Button Text
+      if (MobileState.autoPlay) {
+        MobileElements.autoBtn.innerHTML = `<i class="fas fa-stop"></i> AUTO (${MobileState.autoSpinsRemaining})`;
+      } else {
+        MobileElements.autoBtn.innerHTML = '<i class="fas fa-sync-alt"></i> AUTO';
+      }
+
+      // Spielstand speichern (debounced)
+      scheduleSaveState();
+    }
+
+    // Nachricht anzeigen
+    function showMessage(text, type = 'info') {
+      MobileElements.messageDisplay.textContent = text;
+      MobileElements.messageDisplay.className = 'message-display';
+      
+      switch (type) {
+        case 'win':
+          MobileElements.messageDisplay.classList.add('message-win');
+          break;
+        case 'free':
+          MobileElements.messageDisplay.classList.add('message-free');
+          break;
+        case 'error':
+          MobileElements.messageDisplay.style.color = '#ff4444';
+          break;
+        case 'info':
+          MobileElements.messageDisplay.style.color = '#f4d35e';
+          break;
+      }
+      
+      // Nachricht nach 3 Sekunden zurücksetzen
+      setTimeout(() => {
+        if (MobileElements.messageDisplay.textContent === text) {
+          showMessage('Bereit für nächsten Spin', 'info');
+        }
+      }, 3000);
+    }
+
+    // Free Spins Banner anzeigen
+    function showFreeSpinsBanner() {
+      MobileElements.freeSpinsBanner.classList.add('show');
+    }
+
+    // Free Spins Banner ausblenden
+    function hideFreeSpinsBanner() {
+      MobileElements.freeSpinsBanner.classList.remove('show');
+    }
+
+    // Gestenhinweis anzeigen
+    function showGestureHint() {
+      MobileElements.gestureHint.classList.add('show');
+      setTimeout(() => {
+        MobileElements.gestureHint.classList.remove('show');
+      }, 5000);
+    }
+
+    // Vibration
+    function vibrate(pattern = [50]) {
+      if (!MOBILE_CONFIG.stats.vibrationEnabled) return;
+      
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      } else {
+        // Fallback: CSS Animation
+        document.body.classList.add('vibrate');
+        setTimeout(() => {
+          document.body.classList.remove('vibrate');
+        }, 300);
+      }
+    }
+
+    // Sound umschalten
+    function toggleSound() {
+      MobileState.soundEnabled = !MobileState.soundEnabled;
+      const icons = document.querySelectorAll('#soundBtn i, #soundToggleBtn i');
+      
+      icons.forEach(icon => {
+        icon.className = MobileState.soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+      });
+      
+      showMessage(MobileState.soundEnabled ? 'Sound aktiviert' : 'Sound deaktiviert', 'info');
+    }
+
+    // Vibration umschalten
+    function toggleVibration() {
+      MOBILE_CONFIG.stats.vibrationEnabled = !MOBILE_CONFIG.stats.vibrationEnabled;
+      const icon = document.querySelector('#vibrationToggleBtn i');
+      
+      icon.className = MOBILE_CONFIG.stats.vibrationEnabled ? 'fas fa-vibrate' : 'fas fa-bell-slash';
+      showMessage(MOBILE_CONFIG.stats.vibrationEnabled ? 'Vibration aktiviert' : 'Vibration deaktiviert', 'info');
+      
+      if (MOBILE_CONFIG.stats.vibrationEnabled) {
+        vibrate();
+      }
+      
+      saveMobileStats();
+    }
+
+    // Hinweise umschalten
+    function toggleHints() {
+      MOBILE_CONFIG.stats.hintsEnabled = !MOBILE_CONFIG.stats.hintsEnabled;
+      const icon = document.querySelector('#hintsToggleBtn i');
+      
+      icon.className = MOBILE_CONFIG.stats.hintsEnabled ? 'fas fa-lightbulb' : 'fas fa-lightbulb-slash';
+      showMessage(MOBILE_CONFIG.stats.hintsEnabled ? 'Hinweise aktiviert' : 'Hinweise deaktiviert', 'info');
+      
+      saveMobileStats();
+    }
+
+    // Modal anzeigen
+    function showModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+      vibrate();
+    }
+
+    // Modal schließen
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Spielverlauf anzeigen
+    function showHistory() {
+      const historyList = document.getElementById('historyList');
+      const history = MOBILE_CONFIG.gameHistory;
+      
+      if (history.length === 0) {
+        historyList.innerHTML = `
+          <div style="text-align: center; color: #aaa; padding: 20px;">
+            <i class="fas fa-history fa-2x" style="margin-bottom: 10px; display: block;"></i>
+            Kein Spielverlauf verfügbar
+          </div>
+        `;
+      } else {
+        let historyHTML = '<div style="display: grid; gap: 8px;">';
+        
+        history.slice(-10).reverse().forEach((entry, index) => {
+          const date = new Date(entry.timestamp).toLocaleTimeString('de-DE');
+          historyHTML += `
+            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border-left: 3px solid ${entry.win > 0 ? '#4CAF50' : '#f44336'}">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <strong style="color: #f4d35e;">Spin #${entry.spinNumber}</strong>
+                <small style="color: #aaa;">${date}</small>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                <span>Einsatz: <strong style="color: #f4d35e;">${entry.bet * entry.lines}</strong></span>
+                <span>Gewinn: <strong style="color: ${entry.win > 0 ? '#4CAF50' : '#f44336'}">${entry.win.toLocaleString('de-DE')}</strong></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 3px;">
+                <span>Scatter: <strong style="color: #4CAF50">${entry.scatter}</strong></span>
+                <span>${entry.isFreeSpin ? '<i class="fas fa-plane" style="color: #4CAF50;"></i> Freispiel' : 'Normal'}</span>
+              </div>
+              ${entry.freeSpins > 0 ? `<div style="margin-top: 5px; color: #4CAF50; font-size: 11px;"><i class="fas fa-plane"></i> +${entry.freeSpins} Freispiele</div>` : ''}
+            </div>
+          `;
+        });
+        
+        historyHTML += '</div>';
+        historyList.innerHTML = historyHTML;
+      }
+      
+      showModal('historyModal');
+    }
+
+    // Zum Verlauf hinzufügen
+    function addToHistory(winAmount, scatterCount) {
+      const historyEntry = {
+        timestamp: new Date().toISOString(),
+        spinNumber: MOBILE_CONFIG.stats.totalSpins,
+        win: winAmount,
+        scatter: scatterCount,
+        freeSpins: scatterCount >= 3 ? (MOBILE_CONFIG.symbols.find(s => s.id === "SCATTER").freeSpins[scatterCount] || 10) : 0,
+        isFreeSpin: MobileState.isFreeSpin,
+        bet: MobileState.currentBet,
+        lines: MobileState.currentLines
+      };
+      
+      MOBILE_CONFIG.gameHistory.push(historyEntry);
+      
+      // Nur die letzten 50 Einträge behalten
+      if (MOBILE_CONFIG.gameHistory.length > 50) {
+        MOBILE_CONFIG.gameHistory = MOBILE_CONFIG.gameHistory.slice(-50);
+      }
+      
+      saveHistory();
+    }
+
+    // Verlauf löschen
+    function clearHistory() {
+      if (confirm('Spielverlauf wirklich löschen?')) {
+        MOBILE_CONFIG.gameHistory = [];
+        saveHistory();
+        showHistory();
+        showMessage('Spielverlauf wurde gelöscht', 'info');
+      }
+    }
+
+    // Modal Stats aktualisieren
+    function updateModalStats() {
+      document.getElementById('modalSpins').textContent = MOBILE_CONFIG.stats.totalSpins;
+      document.getElementById('modalWins').textContent = MOBILE_CONFIG.stats.dailyWins.toLocaleString('de-DE');
+      document.getElementById('modalBestWin').textContent = MOBILE_CONFIG.stats.biggestWin.toLocaleString('de-DE');
+      document.getElementById('modalFreeSpins').textContent = MOBILE_CONFIG.stats.totalFreeSpinsWon;
+      document.getElementById('modalRemainingFreeSpins').textContent = MobileState.freeSpins;
+      
+      const rate = MOBILE_CONFIG.stats.totalSpins > 0 
+        ? ((MOBILE_CONFIG.stats.totalWins / MOBILE_CONFIG.stats.totalSpins) * 100).toFixed(1)
+        : '0';
+      document.getElementById('modalWinRate').textContent = `${rate}%`;
+    }
+
+    // Statistiken zurücksetzen
+    function resetStats() {
+      if (confirm('Statistiken wirklich zurücksetzen?')) {
+        MOBILE_CONFIG.stats = {
+          dailySpins: 0,
+          dailyWins: 0,
+          totalSpins: 0,
+          totalWins: 0,
+          biggestWin: 0,
+          winStreak: 0,
+          bestStreak: 0,
+          freeSpinsTriggered: 0,
+          freeSpinsWon: 0,
+          totalFreeSpinsWon: 0,
+          vibrationEnabled: MOBILE_CONFIG.stats.vibrationEnabled,
+          hintsEnabled: MOBILE_CONFIG.stats.hintsEnabled
+        };
+        
+        updateMobileUI();
+        updateModalStats();
+        saveMobileStats();
+        showMessage('Statistiken wurden zurückgesetzt', 'info');
+      }
+    }
+
+    // Spiel aktualisieren
+    function refreshGame() {
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      loadingSpinner.classList.add('active');
+      
+      setTimeout(() => {
+        // Reels neu erstellen
+        createMobileReels();
+        
+        // UI aktualisieren
+        updateMobileUI();
+        updateModalStats();
+        
+        loadingSpinner.classList.remove('active');
+        showMessage('Spiel aktualisiert!', 'info');
+        vibrate([100, 50, 100]);
+      }, 500);
+    }
+
+    // Stats laden
+    function loadMobileStats() {
+      try {
+        const saved = localStorage.getItem('mobileSlotStats');
+        if (saved) {
+          const data = JSON.parse(saved);
+          MOBILE_CONFIG.stats = { ...MOBILE_CONFIG.stats, ...data };
+        }
+      } catch (e) {
+        console.log('Keine gespeicherten Stats');
+      }
+      
+      try {
+        const savedHistory = localStorage.getItem('mobileSlotHistory');
+        if (savedHistory) {
+          MOBILE_CONFIG.gameHistory = JSON.parse(savedHistory) || [];
+        }
+      } catch (e) {
+        console.log('Kein gespeicherter Verlauf');
+      }
+    }
+
+    // Stats speichern
+    function saveMobileStats() {
+      localStorage.setItem('mobileSlotStats', JSON.stringify(MOBILE_CONFIG.stats));
+    }
+
+    // Verlauf speichern
+    function saveHistory() {
+      localStorage.setItem('mobileSlotHistory', JSON.stringify(MOBILE_CONFIG.gameHistory));
+    }
+
+    // PWA Manifest
+    const manifest = {
+      "name": "ARGO Slot Mobile",
+      "short_name": "ARGOSlot",
+      "description": "ARGO-HYTOS Novo Slot Mobile Version",
+      "start_url": ".",
+      "display": "standalone",
+      "background_color": "#0f3460",
+      "theme_color": "#0f3460",
+      "icons": [
+        {
+          "src": "https://www.argo-hytos.com/typo3conf/ext/site_package/Resources/Public/Images/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        },
+        {
+          "src": "https://www.argo-hytos.com/typo3conf/ext/site_package/Resources/Public/Images/apple-touch-icon.png",
+          "sizes": "180x180",
+          "type": "image/png"
+        }
+      ]
+    };
+
+    // Service Worker für Offline-Funktionalität
+    const serviceWorkerCode = `
+    self.addEventListener('install', (event) => {
+      event.waitUntil(
+        caches.open('argo-slot-v1').then((cache) => {
+          return cache.addAll([
+            './',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+          ]);
+        })
+      );
+    });
+
+    self.addEventListener('fetch', (event) => {
+      event.respondWith(
+        caches.match(event.request).then((response) => {
+          return response || fetch(event.request);
+        })
+      );
+    });
+    `;
+
+    // Initialisierung
+    document.addEventListener('DOMContentLoaded', mobileInit);
+
+    // Safe Area Unterstützung für iOS
+    document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top)');
+    document.documentElement.style.setProperty('--sar', 'env(safe-area-inset-right)');
+    document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom)');
+    document.documentElement.style.setProperty('--sal', 'env(safe-area-inset-left)');
+
+    // Vollbild auf iOS
+    document.addEventListener('touchstart', function() {}, {passive: true});
+  </script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        const swUrl = URL.createObjectURL(new Blob([serviceWorkerCode], {type: 'application/javascript'}));
+        navigator.serviceWorker.register(swUrl).catch(function(error) {
+          console.log('ServiceWorker registration failed:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
