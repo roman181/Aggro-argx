@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ARGO · Multiplayer Slot</title>
+  
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* ===== GLOBAL RESET & BASIS ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    html, body { height: 100%; overflow-x: hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(ellipse at top, #1a1a2e, #16213e, #0f3460);
+      color: #fff;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      overscroll-behavior: none;
+    }
+
+    .mobile-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      max-width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mobile-header {
+      padding: 12px 15px;
+      background: rgba(34, 40, 49, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #f4d35e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 900;
+      background: linear-gradient(45deg, #f4d35e, #ffd700);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header-balance {
+      background: rgba(244, 211, 94, 0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid #f4d35e;
+      font-weight: bold;
+      color: #f4d35e;
+      font-size: 14px;
+    }
+
+    .touch-btn {
+      min-width: 44px;
+      min-height: 44px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(244,211,94,0.3);
+      border-radius: 12px;
+      color: #f4d35e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.2s;
+      touch-action: manipulation;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .touch-btn:active { transform: scale(0.95); background: rgba(244,211,94,0.2); }
+    .touch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ===== CONTENT BEREICH ===== */
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    .section-view { display: block; }
+    .section-view.hidden { display: none !important; }
+
+    /* ===== COMMUNITY STYLES ===== */
+    .welcome-section { text-align: center; padding: 20px 0; margin-bottom: 25px; }
+    .welcome-title { font-size: 24px; margin-bottom: 8px; color: #f4d35e; }
+    .welcome-subtitle { font-size: 14px; color: #aaa; max-width: 300px; margin: 0 auto; }
+    
+    .auth-container { max-width: 400px; margin: 0 auto; }
+    .form-toggle { display: flex; background: rgba(34,40,49,0.8); border-radius: 12px; margin-bottom: 20px; overflow: hidden; border: 1px solid rgba(244,211,94,0.2); }
+    .toggle-btn { flex: 1; padding: 15px; text-align: center; font-weight: 600; background: transparent; border: none; color: #aaa; font-size: 14px; transition: all 0.3s; cursor: pointer; }
+    .toggle-btn.active { background: rgba(244,211,94,0.2); color: #f4d35e; }
+    .form-wrapper { background: rgba(34,40,49,0.8); border-radius: 16px; padding: 25px 20px; border: 1px solid rgba(244,211,94,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 25px; }
+    .form-title { text-align: center; font-size: 20px; margin-bottom: 20px; color: #f4d35e; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; padding-left: 5px; }
+    .form-input { width: 100%; padding: 14px 15px; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 16px; transition: all 0.3s; }
+    .form-input:focus { outline: none; border-color: #f4d35e; background: rgba(0,0,0,0.6); }
+    .form-input::placeholder { color: #666; }
+    .form-btn { width: 100%; padding: 16px; background: linear-gradient(180deg, #d32f2f, #b71c1c); border: none; border-radius: 12px; color: white; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
+    .form-btn:active { transform: scale(0.98); background: linear-gradient(180deg, #f44336, #d32f2f); }
+    .form-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Dashboard */
+    .user-info { background: linear-gradient(145deg, rgba(34,40,49,0.9), rgba(57,62,70,0.9)); border-radius: 16px; padding: 20px; margin-bottom: 25px; border: 2px solid rgba(244,211,94,0.3); text-align: center; }
+    .user-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(45deg, #f4d35e, #ff9800); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 36px; color: #222831; }
+    .user-name { font-size: 20px; margin-bottom: 5px; color: #f4d35e; }
+    .user-balance-display { font-size: 24px; font-weight: bold; color: #4CAF50; margin-top: 10px; }
+    
+    /* Tagesbonus Card */
+    .daily-bonus-card {
+      background: linear-gradient(145deg, #2d4059, #1a2a3a);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 2px solid #4CAF50;
+    }
+    .bonus-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .bonus-title {
+      color: #4CAF50;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .bonus-timer {
+      background: rgba(0,0,0,0.3);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    .bonus-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .bonus-slot {
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+    .bonus-slot.available {
+      border-color: #4CAF50;
+      box-shadow: 0 0 15px rgba(76,175,80,0.3);
+      cursor: pointer;
+    }
+    .bonus-slot.available:active { transform: scale(0.95); }
+    .bonus-slot.claimed { opacity: 0.5; border-color: #666; cursor: not-allowed; }
+    .bonus-slot.locked { opacity: 0.7; }
+    .bonus-time { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+    .bonus-amount { font-size: 18px; color: #4CAF50; font-weight: bold; }
+    .bonus-status { font-size: 11px; color: #aaa; margin-top: 5px; }
+    
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+    .menu-card { background: linear-gradient(145deg, rgba(34,40,49,0.9), rgba(57,62,70,0.9)); border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s; cursor: pointer; }
+    .menu-card:active { transform: scale(0.97); border-color: #f4d35e; background: rgba(244,211,94,0.1); }
+
+    /* Ranking */
+    .ranking-card { background: rgba(34,40,49,0.8); border-radius: 16px; padding: 20px; border: 1px solid rgba(244,211,94,0.2); margin-top: 20px; }
+    .ranking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .ranking-title { font-size: 18px; color: #f4d35e; }
+    .ranking-list { max-height: 400px; overflow-y: auto; }
+    .ranking-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ranking-pos { width: 35px; text-align: center; font-weight: bold; font-size: 18px; color: #f4d35e; }
+    .ranking-user { flex: 1; display: flex; align-items: center; gap: 12px; }
+    .ranking-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #666, #999); display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
+    .ranking-name { font-size: 15px; font-weight: 500; }
+    .ranking-balance { font-weight: bold; color: #4CAF50; font-size: 16px; }
+    .ranking-item.current-user { background: rgba(244,211,94,0.15); border-radius: 8px; padding: 12px 8px; }
+
+    /* ===== SLOT STYLES ===== */
+    .game-area { display: flex; flex-direction: column; height: 100%; }
+    .info-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .info-card { background: linear-gradient(145deg, rgba(34,40,49,0.9), rgba(57,62,70,0.9)); border-radius: 12px; padding: 12px; border: 2px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; }
+    .card-label { font-size: 11px; color: #aaa; text-transform: uppercase; }
+    .card-value { font-size: 20px; font-weight: bold; }
+    .balance-value { color: #4CAF50; text-shadow: 0 0 8px rgba(76,175,80,0.3); }
+    .win-value { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.3); }
+
+    .mobile-reels-container { 
+      background: radial-gradient(circle at center, #2d4059, #222831); 
+      border-radius: 16px; 
+      border: 3px solid #444; 
+      padding: 10px; 
+      margin: 10px 0; 
+      flex: 1;
+      min-height: 250px;
+    }
+    .mobile-reels { 
+      display: grid; 
+      grid-template-columns: repeat(5, 1fr); 
+      grid-template-rows: repeat(3, 1fr);
+      gap: 6px; 
+      height: 100%;
+      aspect-ratio: 5 / 3;
+    }
+    .mobile-symbol { 
+      background: linear-gradient(145deg, #1a1a2e, #16213e); 
+      border-radius: 8px; 
+      border: 2px solid #333; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      overflow: hidden; 
+      transition: all 0.3s;
+      padding: 5px;
+      aspect-ratio: 1;
+    }
+    .mobile-symbol.win { 
+      animation: win-pulse 0.5s ease-in-out 3; 
+      border-color: #ffd700 !important; 
+      box-shadow: 0 0 15px #ffd700; 
+    }
+    .symbol-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 6px;
+      padding: 4px;
+    }
+
+    .controls-area { 
+      padding: 15px; 
+      background: rgba(34,40,49,0.95); 
+      backdrop-filter: blur(10px); 
+      border-top: 2px solid rgba(244,211,94,0.3);
+      border-radius: 16px 16px 0 0;
+    }
+    .bet-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; gap: 10px; }
+    .control-display { 
+      background: rgba(0,0,0,0.6); 
+      border-radius: 10px; 
+      padding: 10px 20px; 
+      border: 2px solid #f4d35e; 
+      color: #f4d35e; 
+      font-weight: bold; 
+      font-size: 16px; 
+      text-align: center; 
+      flex: 1; 
+    }
+    .action-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+    .action-btn { 
+      min-height: 50px; 
+      border-radius: 12px; 
+      border: none; 
+      font-weight: 600; 
+      font-size: 14px; 
+      text-transform: uppercase; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px; 
+      transition: all 0.2s; 
+      touch-action: manipulation; 
+      cursor: pointer; 
+    }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .spin-btn { background: linear-gradient(180deg, #d32f2f, #b71c1c); color: white; grid-column: 2; box-shadow: 0 0 20px rgba(211,47,47,0.5); }
+    .auto-btn { background: linear-gradient(180deg, #2e7d32, #1b5e20); color: white; }
+    .auto-btn.active { background: linear-gradient(180deg, #f44336, #d32f2f); }
+    .max-btn { background: linear-gradient(180deg, #ff9800, #f57c00); color: white; }
+    .message-display { 
+      background: rgba(0,0,0,0.5); 
+      border-radius: 10px; 
+      padding: 12px; 
+      border: 1px solid #333; 
+      font-size: 13px; 
+      text-align: center; 
+      min-height: 44px; 
+      margin-bottom: 10px;
+      transition: all 0.3s;
+    }
+    .message-win { background: rgba(92,242,92,0.15); border-color: #5cf25c; color: #5cf25c; }
+
+    /* ===== BOTTOM NAVIGATION ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(34,40,49,0.98);
+      backdrop-filter: blur(20px);
+      border-top: 2px solid rgba(244,211,94,0.2);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+      z-index: 1000;
+    }
+    .nav-item { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 5px; 
+      padding: 5px 10px; 
+      min-width: 60px; 
+      touch-action: manipulation; 
+      text-decoration: none; 
+      color: #aaa; 
+      cursor: pointer; 
+      transition: all 0.2s;
+    }
+    .nav-item.active .nav-icon, .nav-item.active .nav-label { color: #f4d35e; }
+    .nav-icon { font-size: 20px; }
+    .nav-label { font-size: 10px; text-transform: uppercase; }
+
+    /* Messages */
+    .message-container {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      right: 20px;
+      z-index: 1500;
+    }
+    .message { 
+      padding: 12px 15px; 
+      border-radius: 10px; 
+      margin-bottom: 10px; 
+      text-align: center; 
+      font-size: 14px;
+      animation: slideDown 0.3s ease;
+    }
+    .message.success { background: rgba(76,175,80,0.9); border: 1px solid #4CAF50; color: white; }
+    .message.error { background: rgba(211,47,47,0.9); border: 1px solid #d32f2f; color: white; }
+    .message.info { background: rgba(33,150,243,0.9); border: 1px solid #2196F3; color: white; }
+
+    .loading-spinner { 
+      display: none; 
+      position: fixed; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      z-index: 3000; 
+      background: rgba(0,0,0,0.8); 
+      padding: 20px 30px; 
+      border-radius: 12px;
+      color: #f4d35e;
+    }
+    .loading-spinner.active { display: block; }
+
+    @keyframes win-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    @media (max-width: 320px) { 
+      .menu-grid { grid-template-columns: 1fr; } 
+      .bonus-slots { grid-template-columns: 1fr; } 
+      .mobile-reels-container { min-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+<div class="mobile-container">
+  <!-- HEADER -->
+  <div class="mobile-header">
+    <div class="logo">🏆 ARGO Multiplayer</div>
+    <div class="header-balance" id="headerBalance">€0,00</div>
+  </div>
+
+  <!-- DYNAMISCHER CONTENT -->
+  <div class="app-content" id="appContent">
+    <!-- COMMUNITY SECTION -->
+    <div id="communitySection" class="section-view">
+      <div id="authContainer">
+        <div class="welcome-section">
+          <h1 class="welcome-title">ARGO Community</h1>
+          <p class="welcome-subtitle">Spiele online, sammle Tagesboni und klettere die Rangliste hoch!</p>
+        </div>
+        <div class="auth-container">
+          <div class="form-toggle">
+            <button class="toggle-btn active" id="loginToggle">Anmelden</button>
+            <button class="toggle-btn" id="registerToggle">Registrieren</button>
+          </div>
+          <div class="form-wrapper">
+            <div id="loginForm">
+              <h3 class="form-title">Anmeldung</h3>
+              <div class="form-group"><label class="form-label">E-Mail</label><input type="email" class="form-input" id="loginEmail" placeholder="deine@email.de" autocomplete="email"></div>
+              <div class="form-group"><label class="form-label">Passwort</label><input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+              <button class="form-btn" id="loginBtn">Einloggen</button>
+            </div>
+            <div id="registerForm" style="display: none;">
+              <h3 class="form-title">Registrierung</h3>
+              <div class="form-group"><label class="form-label">Benutzername</label><input type="text" class="form-input" id="registerUsername" placeholder="Spielername" autocomplete="username"></div>
+              <div class="form-group"><label class="form-label">E-Mail</label><input type="email" class="form-input" id="registerEmail" placeholder="deine@email.de" autocomplete="email"></div>
+              <div class="form-group"><label class="form-label">Passwort</label><input type="password" class="form-input" id="registerPassword" placeholder="Mind. 6 Zeichen" autocomplete="new-password"></div>
+              <button class="form-btn" id="registerBtn">Konto erstellen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" style="display: none;">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-name" id="userName">Benutzername</div>
+          <div class="user-balance-display" id="userBalance">€0,00</div>
+        </div>
+
+        <!-- Tagesbonus Card -->
+        <div class="daily-bonus-card">
+          <div class="bonus-header">
+            <span class="bonus-title">🎁 Tagesbonus</span>
+            <span class="bonus-timer" id="bonusTimer">--:--:--</span>
+          </div>
+          <div class="bonus-slots">
+            <div class="bonus-slot" data-slot="0">
+              <div class="bonus-time">06:00</div>
+              <div class="bonus-amount">€5,00</div>
+              <div class="bonus-status" id="bonusStatus0">Nicht verfügbar</div>
+            </div>
+            <div class="bonus-slot" data-slot="1">
+              <div class="bonus-time">14:00</div>
+              <div class="bonus-amount">€5,00</div>
+              <div class="bonus-status" id="bonusStatus1">Nicht verfügbar</div>
+            </div>
+            <div class="bonus-slot" data-slot="2">
+              <div class="bonus-time">22:00</div>
+              <div class="bonus-amount">€5,00</div>
+              <div class="bonus-status" id="bonusStatus2">Nicht verfügbar</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-grid">
+          <div class="menu-card" id="menuSlot"><span style="font-size:32px;margin-bottom:12px;">🎰</span><span class="menu-label">ARGO Slot</span></div>
+          <div class="menu-card" id="menuLogout"><span style="font-size:32px;margin-bottom:12px;">🚪</span><span class="menu-label">Abmelden</span></div>
+        </div>
+
+        <!-- Live Ranking -->
+        <div class="ranking-card">
+          <div class="ranking-header">
+            <span class="ranking-title">🏆 Live Rangliste (nach Guthaben)</span>
+            <span style="font-size:12px;color:#aaa;">Echtzeit</span>
+          </div>
+          <div class="ranking-list" id="rankingList">
+            <div style="text-align:center;padding:20px;color:#aaa;">Lade Rangliste...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLOT SECTION -->
+    <div id="slotSection" class="section-view hidden">
+      <div class="game-area" id="gameArea">
+        <div class="info-cards">
+          <div class="info-card"><span class="card-label">Guthaben</span><span class="card-value balance-value" id="balance">€0,00</span></div>
+          <div class="info-card"><span class="card-label">Letzter Gewinn</span><span class="card-value win-value" id="lastWin">€0,00</span></div>
+        </div>
+        <div class="mobile-reels-container">
+          <div class="mobile-reels" id="mobileReels"></div>
+        </div>
+        <div class="controls-area">
+          <div class="bet-controls">
+            <button class="touch-btn" id="betMinusBtn">−</button>
+            <div class="control-display" id="betDisplay">€0,10</div>
+            <button class="touch-btn" id="betPlusBtn">+</button>
+          </div>
+          <div class="action-buttons">
+            <button class="action-btn auto-btn" id="autoBtn">AUTO</button>
+            <button class="action-btn spin-btn" id="spinBtn">SPIN</button>
+            <button class="action-btn max-btn" id="maxBtn">MAX</button>
+          </div>
+          <div class="message-display" id="messageDisplay">Willkommen! Tippe auf SPIN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div class="bottom-nav">
+    <div class="nav-item active" data-view="community"><span class="nav-icon">🏠</span><span class="nav-label">Community</span></div>
+    <div class="nav-item" data-view="slot"><span class="nav-icon">🎰</span><span class="nav-label">Slot</span></div>
+    <div class="nav-item" id="navRanking"><span class="nav-icon">🏆</span><span class="nav-label">Rangliste</span></div>
+  </div>
+</div>
+
+<!-- MESSAGE CONTAINER -->
+<div class="message-container" id="messageContainer"></div>
+<div class="loading-spinner" id="loadingSpinner">⏳ Lade...</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+  // ========== KONFIGURATION ==========
+  // FIX: Supabase Credentials hier eintragen!
+  const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+  
+  // Fallback für Demo-Modus ohne Supabase
+  const DEMO_MODE = !SUPABASE_URL.includes('YOUR-PROJECT') ? false : true;
+  
+  let supabase = null;
+  try {
+    if (!DEMO_MODE) {
+      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch (e) {
+    console.warn('Supabase nicht konfiguriert - Demo Modus aktiv');
+  }
+
+  // ========== GLOBALER STATE ==========
+  let currentUser = null;
+  let userProfile = { balance: 100, username: 'Demo' }; // Startguthaben für Demo
+  let realtimeSubscription = null;
+  
+  // SYMBOLE MIT BILDERN
+  const SLOT_CONFIG = {
+    symbols: [
+      { id: "CHERRY", name: "Kirsche", weight: 5, multiplier: {3: 2, 4: 5, 5: 10}, url: "https://raw.githubusercontent.com/roman181/Aggro-argx/refs/heads/main/fil.png" },
+      { id: "LEMON", name: "Zitrone", weight: 5, multiplier: {3: 2, 4: 5, 5: 10}, url: "https://raw.githubusercontent.com/roman181/Aggro-argx/refs/heads/main/deck.png" },
+      { id: "ORANGE", name: "Orange", weight: 4, multiplier: {3: 3, 4: 8, 5: 15}, url: "https://raw.githubusercontent.com/roman181/Aggro-argx/refs/heads/main/ko1.png" },
+      { id: "PLUM", name: "Pflaume", weight: 4, multiplier: {3: 3, 4: 8, 5: 15}, url: "https://raw.githubusercontent.com/roman181/Aggro-argx/refs/heads/main/ko2.png" },
+      { id: "BELL", name: "Glocke", weight: 3, multiplier: {3: 5, 4: 15, 5: 30}, url: "https://raw.githubusercontent.com/roman181/Aggro-argx/refs/heads/main/ko3.png" },
+      { id: "SEVEN", name: "Sieben", weight: 2, multiplier: {3: 10, 4: 50, 5: 100}, url: "https://raw.githubusercontent.com/roman181/Aggro-argx/refs/heads/main/ko4.png" }
+    ],
+    paylines: [
+      [1,1,1,1,1], // Mitte
+      [0,0,0,0,0], // Oben
+      [2,2,2,2,2], // Unten
+      [0,1,2,1,0], // V
+      [2,1,0,1,2]  // Umgekehrtes V
+    ],
+    betValues: [0.10, 0.25, 0.50, 1, 2, 5, 10],
+    currentBetIndex: 0
+  };
+
+  let slotState = {
+    isSpinning: false,
+    autoPlay: false,
+    autoSpinsRemaining: 0
+  };
+
+  const BONUS_TIMES = [6, 14, 22];
+  const BONUS_AMOUNT = 5;
+  let claimedSlots = [];
+
+  // ========== HILFSFUNKTIONEN ==========
+  function showMessage(text, type = 'info') {
+    const container = document.getElementById('messageContainer');
+    const msg = document.createElement('div');
+    msg.className = `message ${type}`;
+    msg.textContent = text;
+    container.appendChild(msg);
+    setTimeout(() => msg.remove(), 4000);
+  }
+
+  function showLoading(show) {
+    document.getElementById('loadingSpinner').classList.toggle('active', show);
+  }
+
+  function formatEuro(amount) {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(amount);
+  }
+
+  function getCurrentDate() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  // ========== AUTH FUNKTIONEN ==========
+  async function login(email, password) {
+    if (DEMO_MODE || !supabase) {
+      // Demo Login
+      showLoading(true);
+      await new Promise(r => setTimeout(r, 500));
+      currentUser = { id: 'demo-user', email };
+      userProfile = { username: email.split('@')[0], balance: 100 };
+      showLoading(false);
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      updateDashboardUI();
+      loadRanking();
+      updateBonusUI();
+      showMessage('Demo-Modus: Erfolgreich angemeldet!', 'success');
+      return true;
+    }
+
+    showLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    showLoading(false);
+    if (error) { showMessage(error.message, 'error'); return false; }
+    currentUser = data.user;
+    await loadUserProfile();
+    return true;
+  }
+
+  async function register(username, email, password) {
+    if (DEMO_MODE || !supabase) {
+      showMessage('Demo-Modus: Registrierung nicht verfügbar. Nutze "demo@test.de" mit beliebigem Passwort', 'info');
+      return false;
+    }
+
+    if (password.length < 6) {
+      showMessage('Passwort muss mindestens 6 Zeichen haben', 'error');
+      return false;
+    }
+
+    showLoading(true);
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) { showLoading(false); showMessage(error.message, 'error'); return false; }
+    
+    currentUser = data.user;
+    if (currentUser) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{ id: currentUser.id, username, balance: 10 }]);
+      
+      if (profileError) { showMessage(profileError.message, 'error'); return false; }
+      await loadUserProfile();
+    }
+    showLoading(false);
+    return true;
+  }
+
+  async function logout() {
+    if (!DEMO_MODE && supabase) {
+      await supabase.auth.signOut();
+    }
+    currentUser = null;
+    userProfile = { balance: 100, username: 'Demo' };
+    if (realtimeSubscription) realtimeSubscription.unsubscribe();
+    document.getElementById('authContainer').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+    showMessage('Erfolgreich abgemeldet', 'info');
+  }
+
+  async function loadUserProfile() {
+    if (!currentUser) return;
+    
+    if (DEMO_MODE || !supabase) {
+      userProfile = { username: currentUser.email.split('@')[0], balance: 100 };
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      updateDashboardUI();
+      loadRanking();
+      updateBonusUI();
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if (error) { console.error(error); return; }
+    userProfile = data;
+    
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    updateDashboardUI();
+    loadRanking();
+    updateBonusUI();
+    subscribeToRankingUpdates();
+  }
+
+  function updateDashboardUI() {
+    if (!userProfile) return;
+    document.getElementById('userName').textContent = userProfile.username || 'Spieler';
+    document.getElementById('userAvatar').textContent = (userProfile.username || 'S').charAt(0).toUpperCase();
+    document.getElementById('userBalance').textContent = formatEuro(userProfile.balance || 0);
+    document.getElementById('headerBalance').textContent = formatEuro(userProfile.balance || 0);
+  }
+
+  // ========== TAGESBONUS ==========
+  function getBonusSlotStatus(hour) {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinutes = now.getMinutes();
+    
+    // FIX: Bonus ist 4 Stunden verfügbar
+    const slotStart = hour;
+    const slotEnd = hour + 4;
+    
+    const currentTimeValue = currentHour + currentMinutes / 60;
+    
+    if (currentTimeValue >= slotStart && currentTimeValue < slotEnd) {
+      return true;
+    }
+    return false;
+  }
+
+  async function loadClaimedSlots() {
+    if (!currentUser) return;
+    
+    if (DEMO_MODE || !supabase) {
+      // Demo: Gespeicherte Claims aus localStorage
+      const stored = localStorage.getItem('demo_claimed_bonus');
+      claimedSlots = stored ? JSON.parse(stored) : [];
+      return;
+    }
+
+    const today = getCurrentDate();
+    const { data } = await supabase
+      .from('daily_bonus_claims')
+      .select('slot')
+      .eq('user_id', currentUser.id)
+      .eq('claim_date', today);
+    claimedSlots = data?.map(c => c.slot) || [];
+  }
+
+  function isSlotClaimedToday(slot) {
+    return claimedSlots.includes(slot);
+  }
+
+  async function claimBonus(slot) {
+    if (!currentUser || !userProfile) {
+      showMessage('Bitte zuerst anmelden', 'error');
+      return;
+    }
+    
+    const hour = BONUS_TIMES[slot];
+    if (!getBonusSlotStatus(hour)) {
+      showMessage(`Bonus um ${hour}:00 Uhr ist aktuell nicht verfügbar`, 'error');
+      return;
+    }
+    
+    if (isSlotClaimedToday(slot)) {
+      showMessage('Bonus wurde heute bereits abgeholt!', 'error');
+      return;
+    }
+
+    if (DEMO_MODE || !supabase) {
+      // Demo Modus
+      claimedSlots.push(slot);
+      localStorage.setItem('demo_claimed_bonus', JSON.stringify(claimedSlots));
+      userProfile.balance = (userProfile.balance || 0) + BONUS_AMOUNT;
+      updateDashboardUI();
+      updateBonusUI();
+      loadRanking();
+      showMessage(`€${BONUS_AMOUNT.toFixed(2)} Bonus erhalten!`, 'success');
+      return;
+    }
+
+    const today = getCurrentDate();
+    const { error } = await supabase
+      .from('daily_bonus_claims')
+      .insert([{ user_id: currentUser.id, slot, claim_date: today }]);
+    
+    if (error) { showMessage('Fehler beim Claimen', 'error'); return; }
+
+    const newBalance = (userProfile.balance || 0) + BONUS_AMOUNT;
+    await supabase.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
+    
+    userProfile.balance = newBalance;
+    claimedSlots.push(slot);
+    
+    updateDashboardUI();
+    updateBonusUI();
+    showMessage(`€${BONUS_AMOUNT.toFixed(2)} Bonus erhalten!`, 'success');
+  }
+
+  function updateBonusUI() {
+    loadClaimedSlots().then(() => {
+      for (let i = 0; i < 3; i++) {
+        const slotEl = document.querySelector(`[data-slot="${i}"]`);
+        const statusEl = document.getElementById(`bonusStatus${i}`);
+        if (!slotEl || !statusEl) continue;
+        
+        const hour = BONUS_TIMES[i];
+        const available = getBonusSlotStatus(hour);
+        const claimed = isSlotClaimedToday(i);
+        
+        slotEl.classList.remove('available', 'claimed', 'locked');
+        if (claimed) {
+          slotEl.classList.add('claimed');
+          statusEl.textContent = 'Abgeholt ✓';
+        } else if (available) {
+          slotEl.classList.add('available');
+          statusEl.textContent = 'JETZT ABHOLEN!';
+        } else {
+          slotEl.classList.add('locked');
+          // FIX: Zeige wann verfügbar
+          const now = new Date();
+          const bonusTime = new Date(now);
+          bonusTime.setHours(hour, 0, 0, 0);
+          if (now > bonusTime) bonusTime.setDate(bonusTime.getDate() + 1);
+          const hoursLeft = Math.ceil((bonusTime - now) / 3600000);
+          statusEl.textContent = `In ${hoursLeft}h verfügbar`;
+        }
+      }
+    });
+  }
+
+  function updateBonusTimer() {
+    const now = new Date();
+    let nextBonusTime = null;
+    
+    for (let hour of BONUS_TIMES) {
+      const bonusTime = new Date(now);
+      bonusTime.setHours(hour, 0, 0, 0);
+      if (bonusTime > now) {
+        nextBonusTime = bonusTime;
+        break;
+      }
+    }
+    
+    if (!nextBonusTime) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(BONUS_TIMES[0], 0, 0, 0);
+      nextBonusTime = tomorrow;
+    }
+    
+    const diff = nextBonusTime - now;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    
+    const timerEl = document.getElementById('bonusTimer');
+    if (timerEl) {
+      timerEl.textContent = `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    }
+  }
+
+  // ========== RANGLISTE ==========
+  async function loadRanking() {
+    const list = document.getElementById('rankingList');
+    
+    if (DEMO_MODE || !supabase) {
+      // Demo Rangliste
+      const demoRanking = [
+        { username: 'MaxMaster', balance: 1250.50 },
+        { username: 'SlotQueen', balance: 980.75 },
+        { username: 'ArgoPro', balance: 756.25 },
+        { username: 'JackpotJens', balance: 520.00 },
+        { username: 'LuckyLisa', balance: 345.50 },
+      ];
+      if (userProfile && userProfile.username) {
+        demoRanking.push({ username: userProfile.username, balance: userProfile.balance || 0 });
+      }
+      demoRanking.sort((a, b) => b.balance - a.balance);
+      renderRanking(demoRanking);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, balance')
+      .order('balance', { ascending: false })
+      .limit(50);
+    
+    if (error) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;">Fehler beim Laden</div>';
+      return;
+    }
+    renderRanking(data);
+  }
+
+  function renderRanking(profiles) {
+    const list = document.getElementById('rankingList');
+    if (!profiles || profiles.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;">Keine Spieler gefunden</div>';
+      return;
+    }
+    
+    list.innerHTML = '';
+    
+    profiles.forEach((p, index) => {
+      const isCurrentUser = currentUser && p.id === currentUser.id;
+      const div = document.createElement('div');
+      div.className = 'ranking-item' + (isCurrentUser ? ' current-user' : '');
+      
+      let medal = '';
+      if (index === 0) medal = '🥇';
+      else if (index === 1) medal = '🥈';
+      else if (index === 2) medal = '🥉';
+      
+      div.innerHTML = `
+        <div class="ranking-pos">${medal || (index + 1)}</div>
+        <div class="ranking-user">
+          <div class="ranking-avatar">${(p.username || '?').charAt(0).toUpperCase()}</div>
+          <span class="ranking-name">${p.username || 'Unbekannt'}${isCurrentUser ? ' (Du)' : ''}</span>
+        </div>
+        <div class="ranking-balance">${formatEuro(p.balance || 0)}</div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function subscribeToRankingUpdates() {
+    if (DEMO_MODE || !supabase) return;
+    if (realtimeSubscription) realtimeSubscription.unsubscribe();
+    
+    realtimeSubscription = supabase
+      .channel('ranking-updates')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => loadRanking()
+      )
+      .subscribe();
+  }
+
+  // ========== SLOT SPIEL ==========
+  function initSlot() {
+    const reels = document.getElementById('mobileReels');
+    reels.innerHTML = '';
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 5; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'mobile-symbol';
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        const sym = getRandomSymbol();
+        const img = document.createElement('img');
+        img.src = sym.url;
+        img.alt = sym.name;
+        img.className = 'symbol-img';
+        img.loading = 'lazy';
+        img.onerror = () => { img.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23333\'/%3E%3Ctext x=\'50\' y=\'60\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3E' + (sym.name.charAt(0)) + '%3C/text%3E%3C/svg%3E'; };
+        cell.appendChild(img);
+        cell.dataset.symbol = sym.id;
+        reels.appendChild(cell);
+      }
+    }
+    updateSlotUI();
+  }
+
+  function getRandomSymbol() {
+    const total = SLOT_CONFIG.symbols.reduce((s, sym) => s + sym.weight, 0);
+    let r = Math.random() * total;
+    for (const sym of SLOT_CONFIG.symbols) {
+      if ((r -= sym.weight) < 0) return sym;
+    }
+    return SLOT_CONFIG.symbols[0];
+  }
+
+  function updateSlotUI() {
+    if (!userProfile && !DEMO_MODE) return;
+    const bet = SLOT_CONFIG.betValues[SLOT_CONFIG.currentBetIndex];
+    document.getElementById('balance').textContent = formatEuro(userProfile?.balance || 0);
+    document.getElementById('betDisplay').textContent = formatEuro(bet);
+    document.getElementById('headerBalance').textContent = formatEuro(userProfile?.balance || 0);
+  }
+
+  async function spin() {
+    if (slotState.isSpinning) return;
+    
+    // FIX: Prüfe ob Guthaben ausreicht
+    const bet = SLOT_CONFIG.betValues[SLOT_CONFIG.currentBetIndex];
+    if ((userProfile?.balance || 0) < bet) {
+      showMessage('Nicht genug Guthaben! Hole deinen Tagesbonus ab.', 'error');
+      if (slotState.autoPlay) {
+        slotState.autoPlay = false;
+        slotState.autoSpinsRemaining = 0;
+        document.getElementById('autoBtn').classList.remove('active');
+      }
+      return;
+    }
+
+    slotState.isSpinning = true;
+    
+    // Buttons deaktivieren
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('autoBtn').disabled = true;
+    document.getElementById('maxBtn').disabled = true;
+    
+    // Einsatz abziehen
+    if (userProfile) {
+      userProfile.balance -= bet;
+      if (!DEMO_MODE && supabase && currentUser) {
+        await supabase.from('profiles').update({ balance: userProfile.balance }).eq('id', currentUser.id);
+      }
+    }
+    updateSlotUI();
+
+    await animateSpin();
+    
+    // Gewinnberechnung
+    const winMultiplier = calculateWin();
+    const winAmount = winMultiplier * bet;
+    
+    if (winAmount > 0) {
+      userProfile.balance += winAmount;
+      if (!DEMO_MODE && supabase && currentUser) {
+        await supabase.from('profiles').update({ balance: userProfile.balance }).eq('id', currentUser.id);
+      }
+      
+      document.getElementById('lastWin').textContent = formatEuro(winAmount);
+      const msgEl = document.getElementById('messageDisplay');
+      msgEl.textContent = `🎉 GEWINN: ${formatEuro(winAmount)}!`;
+      msgEl.classList.add('message-win');
+      
+      // FIX: Alle Gewinnsymbole markieren
+      highlightWinningSymbols();
+    } else {
+      document.getElementById('lastWin').textContent = formatEuro(0);
+      const msgEl = document.getElementById('messageDisplay');
+      msgEl.textContent = 'Kein Gewinn - Versuch es nochmal!';
+      msgEl.classList.remove('message-win');
+    }
+    
+    updateSlotUI();
+    slotState.isSpinning = false;
+    
+    // Buttons wieder aktivieren
+    document.getElementById('spinBtn').disabled = false;
+    document.getElementById('autoBtn').disabled = false;
+    document.getElementById('maxBtn').disabled = false;
+    
+    // Auto-Play Fortsetzung
+    if (slotState.autoPlay && slotState.autoSpinsRemaining > 0) {
+      slotState.autoSpinsRemaining--;
+      if (slotState.autoSpinsRemaining === 0) {
+        slotState.autoPlay = false;
+        document.getElementById('autoBtn').classList.remove('active');
+        showMessage('Auto-Play beendet', 'info');
+      }
+      setTimeout(() => spin(), 800);
+    }
+    
+    // Rangliste aktualisieren
+    loadRanking();
+  }
+
+  function animateSpin() {
+    return new Promise(resolve => {
+      const cells = document.querySelectorAll('.mobile-symbol');
+      cells.forEach(c => c.classList.remove('win'));
+      
+      let steps = 0;
+      const maxSteps = 12; // FIX: Reduziert für schnellere Animation
+      
+      function step() {
+        cells.forEach(cell => {
+          if (Math.random() < 0.5) { // FIX: 50% Chance für Bildwechsel
+            const sym = getRandomSymbol();
+            const img = cell.querySelector('img');
+            if (img) {
+              img.src = sym.url;
+              img.alt = sym.name;
+            }
+            cell.dataset.symbol = sym.id;
+          }
+        });
+        
+        if (++steps < maxSteps) {
+          setTimeout(step, 60); // FIX: Schnellere Animation
+        } else {
+          // Finale Symbole setzen
+          cells.forEach(cell => {
+            const sym = getRandomSymbol();
+            const img = cell.querySelector('img');
+            if (img) {
+              img.src = sym.url;
+              img.alt = sym.name;
+            }
+            cell.dataset.symbol = sym.id;
+          });
+          resolve();
+        }
+      }
+      step();
+    });
+  }
+
+  function calculateWin() {
+    const reels = document.getElementById('mobileReels');
+    let totalMultiplier = 0;
+    
+    SLOT_CONFIG.paylines.forEach(line => {
+      const firstCell = reels.querySelector(`[data-row="${line[0]}"][data-col="0"]`);
+      if (!firstCell) return;
+      
+      const firstSymbol = firstCell.dataset.symbol;
+      let count = 1;
+      
+      for (let c = 1; c < 5; c++) {
+        const cell = reels.querySelector(`[data-row="${line[c]}"][data-col="${c}"]`);
+        if (!cell) break;
+        if (cell.dataset.symbol === firstSymbol) count++; else break;
+      }
+      
+      if (count >= 3) {
+        const symConfig = SLOT_CONFIG.symbols.find(s => s.id === firstSymbol);
+        if (symConfig?.multiplier && symConfig.multiplier[count]) {
+          totalMultiplier += symConfig.multiplier[count];
+        }
+      }
+    });
+    
+    return totalMultiplier;
+  }
+
+  function highlightWinningSymbols() {
+    const reels = document.getElementById('mobileReels');
+    
+    SLOT_CONFIG.paylines.forEach(line => {
+      const firstCell = reels.querySelector(`[data-row="${line[0]}"][data-col="0"]`);
+      if (!firstCell) return;
+      
+      const firstSymbol = firstCell.dataset.symbol;
+      let count = 1;
+      
+      for (let c = 1; c < 5; c++) {
+        const cell = reels.querySelector(`[data-row="${line[c]}"][data-col="${c}"]`);
+        if (!cell) break;
+        if (cell.dataset.symbol === firstSymbol) count++; else break;
+      }
+      
+      if (count >= 3) {
+        for (let c = 0; c < count; c++) {
+          const cell = reels.querySelector(`[data-row="${line[c]}"][data-col="${c}"]`);
+          if (cell) cell.classList.add('win');
+        }
+      }
+    });
+  }
+
+  // ========== VIEW UMSCHALTUNG ==========
+  function setActiveView(view) {
+    const communitySection = document.getElementById('communitySection');
+    const slotSection = document.getElementById('slotSection');
+    
+    communitySection.classList.toggle('hidden', view !== 'community');
+    slotSection.classList.toggle('hidden', view !== 'slot');
+    
+    document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+      item.classList.toggle('active', item.dataset.view === view);
+    });
+    
+    if (view === 'slot') {
+      if (!document.getElementById('mobileReels').children.length) {
+        initSlot();
+      }
+      updateSlotUI();
+    } else if (view === 'community' && currentUser) {
+      loadRanking();
+      updateBonusUI();
+    }
+  }
+
+  // ========== INITIALISIERUNG ==========
+  async function init() {
+    // Auth-Status prüfen
+    if (!DEMO_MODE && supabase) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        currentUser = session.user;
+        await loadUserProfile();
+      }
+    }
+    
+    // Demo-Hinweis anzeigen
+    if (DEMO_MODE) {
+      showMessage('🎮 Demo-Modus: Login mit beliebiger E-Mail/Passwort', 'info');
+    }
+
+    // Event Listener
+    document.getElementById('loginToggle').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginToggle').classList.add('active');
+      document.getElementById('registerToggle').classList.remove('active');
+    });
+    
+    document.getElementById('registerToggle').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('registerToggle').classList.add('active');
+      document.getElementById('loginToggle').classList.remove('active');
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pw = document.getElementById('loginPassword').value;
+      if (!email || !pw) {
+        showMessage('Bitte E-Mail und Passwort eingeben', 'error');
+        return;
+      }
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      const success = await login(email, pw);
+      btn.disabled = false;
+      if (success) setActiveView('community');
+    });
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const username = document.getElementById('registerUsername').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const pw = document.getElementById('registerPassword').value;
+      
+      if (!username || !email || !pw) {
+        showMessage('Bitte alle Felder ausfüllen', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      const success = await register(username, email, pw);
+      btn.disabled = false;
+      if (success) setActiveView('community');
+    });
+
+    document.getElementById('menuLogout').addEventListener('click', logout);
+    document.getElementById('menuSlot').addEventListener('click', () => setActiveView('slot'));
+
+    document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+      item.addEventListener('click', () => setActiveView(item.dataset.view));
+    });
+
+    document.querySelectorAll('.bonus-slot').forEach((slot, idx) => {
+      slot.addEventListener('click', () => claimBonus(idx));
+    });
+
+    // Slot Controls
+    document.getElementById('spinBtn').addEventListener('click', spin);
+    document.getElementById('autoBtn').addEventListener('click', () => {
+      if (slotState.isSpinning) return;
+      slotState.autoPlay = !slotState.autoPlay;
+      slotState.autoSpinsRemaining = slotState.autoPlay ? 10 : 0;
+      document.getElementById('autoBtn').classList.toggle('active', slotState.autoPlay);
+      if (slotState.autoPlay) {
+        showMessage('Auto-Play gestartet (10 Spins)', 'info');
+        spin();
+      } else {
+        showMessage('Auto-Play gestoppt', 'info');
+      }
+    });
+    
+    document.getElementById('maxBtn').addEventListener('click', () => {
+      if (slotState.isSpinning) return;
+      SLOT_CONFIG.currentBetIndex = SLOT_CONFIG.betValues.length - 1;
+      updateSlotUI();
+      showMessage(`Maximaler Einsatz: ${formatEuro(SLOT_CONFIG.betValues[SLOT_CONFIG.currentBetIndex])}`, 'info');
+    });
+    
+    document.getElementById('betPlusBtn').addEventListener('click', () => {
+      if (slotState.isSpinning) return;
+      if (SLOT_CONFIG.currentBetIndex < SLOT_CONFIG.betValues.length - 1) {
+        SLOT_CONFIG.currentBetIndex++;
+        updateSlotUI();
+      }
+    });
+    
+    document.getElementById('betMinusBtn').addEventListener('click', () => {
+      if (slotState.isSpinning) return;
+      if (SLOT_CONFIG.currentBetIndex > 0) {
+        SLOT_CONFIG.currentBetIndex--;
+        updateSlotUI();
+      }
+    });
+
+    document.getElementById('navRanking').addEventListener('click', () => {
+      setActiveView('community');
+      loadRanking();
+    });
+
+    // Enter-Taste für Login
+    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+
+    // Timer für Bonus
+    setInterval(() => {
+      updateBonusTimer();
+      if (currentUser) updateBonusUI();
+    }, 1000);
+    updateBonusTimer();
+
+    setActiveView('community');
+  }
+
+  init();
+</script>
+</body>
+</html>
